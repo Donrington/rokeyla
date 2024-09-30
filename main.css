@@ -1,4 +1,22 @@
 /* General Styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+.no-gutters {
+    margin-left: 0;
+    margin-right: 0;
+}
+.no-gutters > [class*='col-'] {
+    padding-left: 0;
+    padding-right: 0;
+}
 
 /* Navbar Styles */
 .navbar {
@@ -135,7 +153,6 @@
 .hero-logo {
     width: 150px;
     height: auto;
-    max-width: 50%;
     display: inline-block;
     animation: slideInDown 1s ease-out forwards;
 }
@@ -170,11 +187,16 @@
     color: rgba(255, 255, 255, 0.8);
     animation: fadeIn  .5s ease-out forwards 0.75s; /* Animation for description with delay */
 }
+.btn-link,
+.btn-link2 {
+    width: auto;
+    margin: 20px auto;
+}
 
 /* Custom Button Link */
 .btn-link {
     position: relative;
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
@@ -299,6 +321,10 @@
         font-size: 1.125em; /* Default button text size */
         padding: 18px 25px; /* Default padding */
     }
+
+    .hero-logo{
+        max-width: 25%;
+    }
 }
 
 
@@ -411,14 +437,14 @@ section.animate {
 /* Add to Cart Button Styles */
 .button {
     height: 60px;
-    width: 200px;
+    width: auto;
     background-color: #000; /* Black background */
     border: 2px solid #fff; /* White border */
     color: #fff; /* White text */
     transition: 0.6s;
     font-size: 15px;
     border-radius: 50px;
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
@@ -474,6 +500,8 @@ section.animate {
 .product-image img, .introimg img, .image-right img, .image-left img, .product-image-newest img {
     width: 100%;
     height: auto;
+    max-width:100%;
+    display: block;
     transition: transform 0.3s ease-in-out;
     cursor: url('static/cursor/target3.png'), auto; /* Custom cursor applied only to images */
 }
@@ -608,7 +636,7 @@ section.animate {
 
     .button {
         height: 50px; /* Adjust height for smaller screens */
-        width: 180px; /* Adjust width for smaller screens */
+        width: auto; /* Adjust width for smaller screens */
         font-size: 14px; /* Adjust font size for smaller screens */
     }
 }
@@ -624,7 +652,7 @@ section.animate {
 
     .button {
         height: 45px; /* Adjust height for medium screens */
-        width: 160px; /* Adjust width for medium screens */
+        width: auto; /* Adjust width for medium screens */
         font-size: 13px; /* Adjust font size for medium screens */
     }
 }
@@ -659,7 +687,7 @@ section.animate {
 
     .button {
         height: 40px; /* Adjust height for small screens */
-        width: 140px; /* Adjust width for small screens */
+        width: auto; /* Adjust width for small screens */
         font-size: 12px; /* Adjust font size for small screens */
     }
 }
@@ -694,7 +722,7 @@ section.animate {
 
     .button {
         height: 35px; /* Adjust height for extra small screens */
-        width: 120px; /* Adjust width for extra small screens */
+        width: auto; /* Adjust width for extra small screens */
         font-size: 11px; /* Adjust font size for extra small screens */
     }
 }
@@ -720,7 +748,7 @@ section.animate {
 /* Add to Cart Button Styles */
 .button {
     height: 60px;
-    width: 200px;
+    width: auto;
     background-color: #000; /* Black background */
     border: 2px solid #fff; /* White border */
     color: #fff; /* White text */
@@ -786,7 +814,7 @@ section.animate {
     padding: 20px;
     background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for better text visibility */
     color: #fff;
-    max-width: 1000px;
+    max-width: 100%;
     margin-right: 20px; /* Spacing from the right edge */
     z-index: 1;
     border-radius: 5px; /* Ensure content is above the background */
@@ -851,10 +879,6 @@ section.animate {
 
 /* Adjust layout for tablets and mobile devices */
 @media (max-width: 991px) {
-    .content-wrapper {
-        margin-right: 0; /* Remove right margin */
-        padding: 15px; /* Adjust padding */
-    }
 
     .text-content h2 {
         font-size: 1.4rem; /* Adjust font size */
@@ -863,6 +887,20 @@ section.animate {
     .text-content .accessories-btn {
         padding: 8px 20px; /* Adjust padding */
         font-size: 0.9rem; /* Adjust font size */
+    }
+}
+
+/* Media query for larger screens */
+@media (min-width: 992px) {
+    .content-wrapper,
+    .content-wrapper-left {
+        max-width: 1000px;
+    }
+    .content-wrapper {
+        margin-right: 20px;
+    }
+    .content-wrapper-left {
+        margin-left: 20px;
     }
 }
 
@@ -1080,8 +1118,9 @@ section.animate {
     padding: 20px;
     background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for better text visibility */
     color: #fff;
-    max-width: 1000px;
-    margin-left: 20px; /* Spacing from the left edge */
+  
+    width:100%;
+    margin: 0 auto; /* Spacing from the left edge */
     z-index: 1;
     border-radius: 5px; /* Ensure content is above the background */
 }
