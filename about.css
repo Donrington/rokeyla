@@ -3,7 +3,18 @@ body {
     margin: 0;
     font-family: 'Raleway', sans-serif;
     color: #333;
+    overflow-x: hidden;
 }
+
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+  
+}
+
+
 
 
 a {
@@ -210,6 +221,7 @@ h2 {
 .mission-section {
     padding: 100px 0;
     background-color: #f9f9f9;
+    overflow: hidden;
 }
 
 .mission-section .container {
@@ -221,11 +233,17 @@ h2 {
     margin: 0 auto;
 }
 
-.mission-content {
-    flex: 1 1 500px;
-    padding: 20px 40px;
-    text-align: justify;
+.mission-section .row {
+    margin-right: 0;
+    margin-left: 0;
 }
+
+.mission-section .col-md-6 {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+
 
 .mission-content h2 {
     font-size: 2.8em;
@@ -239,10 +257,26 @@ h2 {
     margin-bottom: 20px;
 }
 
+.mission-content,
 .mission-image {
-    flex: 1 1 400px;
+    flex: 1 1 100%;
     padding: 20px;
 }
+
+/* Ensure images are responsive */
+
+/* Remove negative margins from rows */
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Remove padding from columns within rows */
+.no-gutters > [class*='col-'] {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 
 .mission-image img {
     width: 100%;
@@ -257,6 +291,7 @@ h2 {
     background-size: cover;
     background-repeat: no-repeat;
     height: 200px;
+    width: 100%;
     position: relative;
 }
 
@@ -427,8 +462,10 @@ h2 {
     z-index: 1;
     top: 50%;
     left: 50%;
-    width: 180px;
-    height: 180px;
+    width: 20vw;
+    height: 20vw;
+    min-width: 100px;
+    min-height: 100px;
     border-radius: 50%;
     background-color: maroon;
     opacity: 0.2;
@@ -682,13 +719,14 @@ h2 {
     }
 
     .timeline:before {
-        left: 8px;
+        left: 20px;
     }
 
     .timeline-item {
         width: 100%;
-        padding-left: 30px;
-        margin-bottom: 40px;
+        left: 0;
+        padding-left: 50px;
+        text-align: left;
     }
 
     .timeline-item:nth-child(odd),
@@ -698,11 +736,12 @@ h2 {
     }
 
     .timeline-item::before {
-        left: 0;
+        left: 10px;
     }
 
     .parallax {
         background-attachment: scroll;
+        height: 100px; /* Adjust height as needed */
     }
 }
 
@@ -798,18 +837,24 @@ h2 {
     /* Parallax */
     .parallax {
         background-attachment: scroll;
+        height: 100px; /* Adjust height as needed */
     }
-
-    /* Values Section */
+    
     .values-grid {
-        flex-direction: column;
-        align-items: center;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-left: -20px;
+        margin-right: -20px;
     }
+    
 
     .value-item {
-        margin-bottom: 30px;
+        padding-left: 20px;
+        padding-right: 20px;
+        flex: 1 1 calc(25% - 40px); /* For four items per row */
+        box-sizing: border-box;
     }
-
     /* Team Section */
     .team-grid {
         flex-direction: column;
@@ -955,6 +1000,14 @@ h2 {
     bottom: -10px;
 }
 
+
+.logo-section{
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center;
+
+}
+
 .footer-section ul {
     list-style: none;
     padding: 0;
@@ -1039,5 +1092,9 @@ h2 {
     .footer-title::after {
         left: 50%;
         transform: translateX(-50%);
+    }
+
+    .footer-display{
+        display:none;
     }
 }
