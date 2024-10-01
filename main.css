@@ -5,7 +5,18 @@
     box-sizing: border-box;
 }
 
-
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+.no-gutters {
+    margin-left: 0;
+    margin-right: 0;
+}
+.no-gutters > [class*='col-'] {
+    padding-left: 0;
+    padding-right: 0;
+}
 
 /* Navbar Styles */
 .navbar {
@@ -1720,7 +1731,7 @@ section.animate {
     }
 
     .footer-display{
-        display:none;
+        display: none;
     }
 
     .social-icons {
