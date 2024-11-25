@@ -1,0 +1,65 @@
+{% extends 'user/reglayout.html' %}
+
+{% block content %}
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Sign In Form -->
+<div class="contain">
+    <form class="form" method="POST" action="{{ url_for('login') }}" data-aos="fade-up">
+        <div class="hero-subtitle">
+            <img src="{{ url_for('static', filename='RokeylaFiles/Logos/Rokeyla Primary Logo White.png') }}" alt="Logo" class="hero-logo">
+        </div>
+        <h2>Sign In to Your Account</h2>
+        <!-- Email Field -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="flex-column">
+            <label for="email">Email</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12.713l11.95-7.162v13.888H0V5.551L12 12.713zm0-2.569L0 3.54h24L12 10.144z"/>
+            </svg>
+            <input type="email" id="email" name="email" class="input" placeholder="Enter your Email" required />
+        </div>
+        <!-- Password Field -->
+        <div class="flex-column">
+            <label for="password">Password</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 8V6a5 5 0 0 0-10 0v2H5v14h14V8h-2zm-8-2a3 3 0 0 1 6 0v2h-6V6zm8 14H7V10h10v10z"/>
+            </svg>
+            <input type="password" id="password" name="password" class="input" placeholder="Enter your Password" required />
+        </div>
+        <!-- Sign In Button -->
+        <button type="submit" class="button-submit">Sign In</button>
+        <!-- Don't Have Account -->
+        <p class="p">Don't have an account? <span class="span"><a href="{{ url_for('register') }}" class="reglog">Sign Up</a></span></p>
+        <!-- Social Login Options -->
+        <div class="flex-row">
+            <button type="button" class="btn google">
+                <i class="fab fa-google"></i>
+                Sign In with Google
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}

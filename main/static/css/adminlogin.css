@@ -1,0 +1,137 @@
+/* Reset and Base Styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background: linear-gradient(to bottom right, rgba(161, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('../RokeylaFiles/Mockups/Business Card Front.jpg') no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 60px 40px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    text-align: center;
+    margin-top: 200px;
+}
+
+.logo-container {
+    margin-bottom: 40px;
+    
+}
+
+.hero-logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.logo-container h2 {
+    font-family: 'Lora', serif;
+    font-size: 2.5em;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.login-form .form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.login-form label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #fff;
+}
+
+.inputForm {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1.5px solid #555;
+    border-radius: 5px;
+    padding: 10px 15px;
+    transition: border-color 0.3s ease;
+}
+
+.inputForm:hover {
+    border-color: #a10000;
+}
+
+.inputForm .icon {
+    width: 20px;
+    height: 20px;
+    fill: #a10000;
+}
+
+.inputForm .input {
+    flex-grow: 1;
+    margin-left: 10px;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1em;
+}
+
+.inputForm .input::placeholder {
+    color: #ccc;
+}
+
+.inputForm .input:focus {
+    outline: none;
+}
+
+.inputForm:focus-within {
+    border-color: #a10000;
+}
+
+.button-submit {
+    width: 100%;
+    padding: 15px;
+    background-color: #a10000;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.button-submit:hover {
+    background-color: #820000;
+}
+
+/* Media Queries */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 40px 20px;
+        margin: 100px auto;
+        width: 85%;
+        margin-top: 100px;
+    }
+
+    .logo-container h2 {
+        font-size: 2em;
+    }
+
+    .button-submit {
+        padding: 12px;
+        font-size: 1em;
+    }
+}

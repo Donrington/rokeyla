@@ -1,0 +1,179 @@
+
+{%extends 'user/shoplayout.html'%}
+
+
+{%block banner%}
+
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Hero Section -->
+<header class="hero-section text-center d-flex align-items-center justify-content-center">
+    <div class="container position-relative">
+        <div class="hero-content">
+            <nav aria-label="breadcrumb" class="breadcrumb-container mb-4">
+                <ol class="breadcrumb justify-content-center bg-transparent">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Men</li>
+                </ol>
+            </nav>
+            <h1 class="hero-title">Shop</h1>
+            <p class="hero-subtitle">Men</p>
+            <p class="hero-description">Explore our exclusive collection of men's fashion, where style meets sophistication. Discover the latest trends in clothing, shoes, and accessories designed for the modern man.</p>
+        </div>
+        <div class="hero-background"></div>
+    </div>
+</header>
+{%endblock banner%}
+
+
+{%block content%}
+<!-- Filter and Product Section -->
+<section class="shop-section py-5">
+    <div class="container">
+        <div class="row">
+
+            <!-- Filter Sidebar -->
+  
+
+            <!-- Product Grid -->
+                        <!-- Filter Sidebar -->
+                       <!-- Filter Sidebar -->
+            <div class="col-md-3">
+                <div class="filter-section">
+                    <h3>Filter by Category</h3>
+                    <ul id="categoryFilter" class="list-group">
+                        <li class="list-group-item active" data-category="all">All</li>
+                        {% for subcat in men_category.subcategories %}
+                            <li class="list-group-item" data-category="{{ subcat.category_name | lower }}">{{ subcat.category_name }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h3 class="mt-4">Filter by Price</h3>
+                    <div class="price-range-container">
+                        <input type="range" id="priceRange" min="10" max="500" value="250" class="slider maroon-slider">
+                        <p>Price: $<span id="priceValue">250</span></p>
+                    </div>
+
+                    <h3 class="mt-4">Search Products</h3>
+                    <input class="input form-control" id="searchBar" placeholder="Search...">
+
+         
+
+                    <!-- Other Best Sellers Section -->
+                    <h3 class="mt-4">Other Best Sellers</h3>
+                    <div class="best-seller  seller">
+                        {% for best_seller in best_sellers %}
+                        <div class="product d-flex align-items-center mb-3">
+                            {% if best_seller.images %}
+                            <img src="{{ url_for('static', filename=best_seller.images[0].image_url) }}" alt="{{ best_seller.product_name }}" class="img-fluid me-3" style="width: 50px; height: 50px; object-fit: cover;" loading="lazy">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" class="img-fluid me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% endif %}
+                            <div  class="ml-3">
+                                <div class="stars mb-1">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <p class="product-name mb-1">{{ best_seller.product_name }}</p>
+                                <p class="price">${{ '%.2f'|format(best_seller.price) }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                       
+
+                
+                    </div>
+                </div>
+            </div>
+
+            
+         <!-- Product Grid -->
+<div class="col-md-9">
+    <div id="productGrid" class="row">
+        {% if products %}
+            <!-- Product Items Loop -->
+            {% for product in products %}
+            <div class="col-lg-4 col-md-6 col-sm-12 product-item" data-category="{{ product.category.category_name | lower }}" data-price="{{ product.price }}">
+                <a href="{{ url_for('product_details', product_id=product.product_id) }}" class="product-link">
+                    <div class="product-image">
+                        {% if product.images %}
+                            <img src="{{ url_for('static', filename=product.images[0].image_url) }}" alt="{{ product.product_name }}" class="img-fluid" loading="lazy">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" class="img-fluid" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="product-details">
+                        <p class="category">{{ product.category.category_name }}</p>
+                        <h5 class="card-title">{{ product.product_name }}</h5>
+                        <p class="price">${{ '%.2f'|format(product.price) }}</p>
+                        <!-- Size Options -->
+                        {% if product.size_list %}
+                        <div class="size-options mb-2">
+                            {% for size in product.size_list %}
+                            <label>
+                                <input type="radio" name="size_{{ product.product_id }}" value="{{ size }}">
+                                <span>{{ size }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <!-- Color Options -->
+                        {% if product.color_list %}
+                        <div class="color-options mb-2">
+                            <h6>Select Color:</h6>
+                            {% for color in product.color_list %}
+                            <label>
+                                <input type="radio" name="selected_color" value="{{ color }}" required>
+                                <span class="color" style="background-color: {{ color | lower }};"></span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <a href="{{ url_for('product_details', product_id=product.product_id) }}" class="btn-newest">View Details</a>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- No Products Found -->
+            <div class="col-12">
+                <p class="text-center">Products Coming Soon</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+        </div>
+    </div>
+
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const loaderOverlay = document.querySelector('.loader-overlay');
+
+    // Simulate a delay for loading (e.g., for testing or until content is fully loaded)
+    setTimeout(() => {
+        loaderOverlay.style.opacity = '0'; // Fade out loader
+        loaderOverlay.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loaderOverlay.style.display = 'none'; // Remove loader from the DOM
+        }, 500); // Match the transition duration
+    }, 2000); // Adjust the delay time as needed
+});
+
+</script>
+{%endblock content%}

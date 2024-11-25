@@ -1,0 +1,37 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+
+
+
+
+
+<div class="admin-messages-container2">
+    <h1>Manage Sent Messages</h1>
+    <div class="admin-messages-list2">
+        {% for message in messages %}
+        <div class="admin-message-card2">
+            <div class="admin-message-header2">
+                <h2>{{ message.subject }}</h2>
+                <span class="admin-message-date2">{{ message.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            <div class="admin-message-body2">
+                <p>{{ message.content }}</p>
+            </div>
+            <div class="admin-message-actions2">
+                <a href="{{ url_for('edit_message', message_id=message.message_id) }}" class="btn-edit">Edit</a>
+                <form action="{{ url_for('delete_message', message_id=message.message_id) }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% if messages|length == 0 %}
+        <p class="no-messages">No messages found.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock content%}

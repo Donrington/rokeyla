@@ -1,0 +1,481 @@
+{%extends 'user/homelayout.html'%}
+
+
+
+{%block banner%}
+
+
+<!-- Page Loader -->
+
+ 
+<!-- Page Loader -->
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid p-0">
+    <div class="row no-gutters">
+<!-- Hero Section -->
+<header class="hero-section text-center d-flex align-items-center justify-content-center" loading="lazy">
+<div class="container position-relative">
+    <div class="row">
+        <div class="col-12">
+            <div class="hero-content">
+                <div class="hero-subtitle">
+                    <img src="../../static/RokeylaFiles/Logos/Rokeyla Secondary Logo White.png " alt="Logo" class="hero-logo">
+                </div>
+                <h1 class="hero-title">Effortlessly Blend Comfort & Style!</h1>
+                <p class="hero-description">Effortlessly blend comfort and style with our Casual & Everyday collection, featuring cozy sweaters, versatile denim, laid-back tees, and relaxed-fit joggers for your everyday adventures.</p>
+                <a href="#featured" class="btn-link">
+                    <span>VIEW COLLECTION</span>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+    <div class="hero-background"></div>
+</div>
+</header>
+
+{%endblock banner%}
+
+
+
+
+{%block content%}
+
+<!-- Introduction Section -->
+<div class=" introduction-section">
+<section class=" py-5 ">
+    <div class="container position-relative mt-5">
+        <div class="row">
+            <div class="col-md-6 introimg">
+                <img src="../../static/images/neon3.jpg" alt="Fashion Introduction" class="img-fluid rounded" data-aos="fade-right" loading="lazy">
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div data-aos="fade-left introsection">
+                    <h2 class="section-title text-white">Welcome to <span><img src="../../static/RokeylaFiles/Logos/Rokeyla Primary Logo White.png " alt="Logo" class="intrologo" loading="lazy"></span></h2>
+                    <div class="introtext">
+                    <p>At Rokeyla, we believe that fashion is more than just clothing—it's an expression of your identity. Our carefully curated collections are designed to inspire, empower, and transform your style into a signature of elegance.</p>
+                    <p>Join us on a journey of discovery and let your wardrobe speak volumes about your personality. With Rokeyla, every piece is a statement, every look is a story.</p>
+                </div>
+                <a href="{{ url_for('about') }}" class="custom-btn custom-btn-type1">
+                    <span class="custom-btn-txt">LEARN MORE</span>
+                </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+
+
+    </section>
+<!-- Featured Products Section -->
+
+<div class="mycircleicon" id="customCursor"></div>
+
+<!-- Featured Products Section -->
+<section class="featured-products py-5">
+    <div class="container">
+        <h2 class="text-center section-title mb-5 mt-5 pb-2" id="featured">Featured Products</h2>
+        <div class="row">
+            {% for product in featured_products %}
+            <div class="col-md-3">
+                <div class="product-card card">
+                    <div class="product-image">
+                        {% if product.images %}
+                            <img src="{{ url_for('static', filename=product.images[0].image_url) }}" class="card-img-top main-image" alt="{{ product.product_name }}" loading="lazy">
+                        {% else %}
+                            <!-- Placeholder image -->
+                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" class="card-img-top main-image" alt="No Image Available" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="category">{{ product.category.category_name }}</p>
+                        <h5 class="card-title">{{ product.product_name }}</h5>
+                        <p class="price">${{ '%.2f'|format(product.price) }}</p>
+        
+                        <!-- Start of the form -->
+                        <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+                            <!-- Size Options -->
+                            {% if product.size_list %}
+                            <div class="size-options mb-2">
+                                <h6>Select Size:</h6>
+                                {% for size in product.size_list %}
+                                <label>
+                                    <input type="radio" name="selected_size" value="{{ size }}" required>
+                                    <span>{{ size }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+        
+                            <!-- Color Options -->
+                            {% if product.color_list %}
+                            <div class="color-options mb-2">
+                                <h6>Select Color:</h6>
+                                {% for color in product.color_list %}
+                                <label>
+                                    <input type="radio" name="selected_color" value="{{ color }}" required>
+                                    <span class="color" style="background-color: {{ color | lower }};"></span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+        
+                            <!-- Quantity Input -->
+                       
+        
+                            <button class="button mt-3">
+                                <span>Add to cart</span>
+                                <svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <g id="SVGRepo_bgCarrier"></g>
+                                    <g id="SVGRepo_tracerCarrier"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <g id="cart">
+                                            <circle r="1.91" cy="20.59" cx="10.07"></circle>
+                                            <circle r="1.91" cy="20.59" cx="18.66"></circle>
+                                            <path d="M.52,1.5H3.18a2.87,2.87,0,0,1,2.74,2L9.11,13.91H8.64A2.39,2.39,0,0,0,6.25,16.3h0a2.39,2.39,0,0,0,2.39,2.38h10"></path>
+                                            <polyline points="7.21 5.32 22.48 5.32 22.48 7.23 20.57 13.91 9.11 13.91"></polyline>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </button>
+                        </form>
+                        <!-- End of the form -->
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+ 
+        </div>
+    </div>
+</section>
+
+
+
+<div class="accessories-collection-section">
+<section class="">
+    <div class="background"></div>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-md-6 p-0"></div> <!-- Empty left side -->
+            <div class="col-md-6 p-0">
+                <div class="content-wrapper">
+                    <div class="image-right">
+                        <img src="../../static/images/brace3.jpg" alt="Model with Accessories" class="img-fluid rounded" loading="lazy">
+                    </div>
+                    <div class="text-content">
+                        <h2>Discover Our Trendy Accessories Collection!</h2>
+                        <div class="accessories-btn">
+                            <a href="{{ url_for('accessories') }}" class="custom-btn custom-btn-type1">Shop Now</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="hero-background"></div>
+
+    </div>
+</section>
+</div>
+<!-- Shoes Collection Section -->
+<div class="shoes-collection-section">
+    <section class="">
+        <div class="container-fluid p-0">
+            <div class="row align-items-center">
+                <div class="col-md-6 p-5">
+                    <div class="content-wrapper2">
+                        <p class="hero-subtitle2 text-black">WORK & OFFICE</p>
+                        <h2 class="section-title">Elegant & Stylish Shoe Collection</h2>
+                        <p class="section-description">Step into sophistication with our latest shoe collection. Each pair is crafted to perfection, blending comfort with high fashion. Elevate your look with shoes that speak of timeless elegance.</p>
+                        <div class="linkbtn">
+                            <a href="{{ url_for('men') }}" class="btn-link2">
+                                <span>SHOP NOW</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 p-0">
+                    <div class="image-right">
+                        <img src="../../static/images/shoe2.jpg" alt="Elegant Shoes" class="img-fluid rounded" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{#
+
+<div class="seasonal-collection-section">
+<section class="">
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-md-6 p-0">
+                <div class="content-wrapper-left">
+                    <div class="image-left">
+                        <img src="../../static/images/season1.jpg" alt="Seasonal Collection" class="img-fluid rounded" loading="lazy">
+                    </div>
+                    <div class="text-content-left">
+                        <h2>Explore Our Seasonal Collection!</h2>
+                        <p class="section-description">Discover our handpicked seasonal collection, curated to bring you the best fashion trends of the season. From cozy winter wear to breezy summer outfits, find your perfect style for every occasion.</p>
+                        <div class="seasonal-btn">
+                            <a href="{{ url_for('women') }}" class="custom-btn custom-btn-type2">Explore Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 p-0"></div> <!-- Empty right side -->
+        </div>
+    </div>
+</section>
+</div>
+
+#}
+<!--Newest Product Section -->
+<section class="newest-products-section py-5">
+    <div class="container">
+        <h2 class="text-center section-title mb-5 mt-5 pb-2">Newest Products</h2>
+        <div class="row">
+            {% for product in newest_products %}
+            <div class="col-md-3">
+                <div class="product-card-newest">
+                    <div class="product-image-newest">
+                        {% if product.images %}
+                            <img src="{{ url_for('static', filename=product.images[0].image_url) }}" alt="{{ product.product_name }}" class="img-fluid" loading="lazy">
+                        {% else %}
+                            <!-- Placeholder image -->
+                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" class="img-fluid" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="product-details">
+                        <h5 class="product-title">{{ product.product_name }}</h5>
+                        <p class="product-price">${{ '%.2f'|format(product.price) }}</p>
+                        <a href="{{ url_for('product_details', product_id=product.product_id) }}" class="btn-newest">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+          
+     
+        </div>
+    </div>
+</section>
+
+
+<section class="advertisement-section py-5">
+    <div class="container">
+        <div class="circles-container">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="ad-content text-center">
+            {% if ad_content %}
+                {{ ad_content | safe }}
+            {% else %}
+                <!-- Placeholder for Ad -->
+                <h2 class="ad-title">Special Announcement</h2>
+                <p class="ad-text">Stay tuned for our upcoming promotions and exclusive offers!</p>
+                <a href="" class="btn-ad">Learn More</a>
+            {% endif %}
+
+            <!-- Google AdSense Code -->
+            {% if not ad_content %}
+            <div class="ad-placeholder">
+                <!-- Replace the code below with your Google AdSense code -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+                <!-- Ad Unit -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+                    data-ad-slot="XXXXXXXXXX"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</section>
+
+{#
+
+<!-- Testimonials Section -->
+<div class="testimonials-carousel-section">
+    <section class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          <div class="carousel-container">
+            <!-- Testimonial Slide 1 -->
+            <div class="testimonial-slide active">
+              <div class="testimonial-content">
+                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?t=st=1723936397~exp=1723939997~hmac=d584bbe596523902cd382c5512a140abc0dc229321ba3c1ba340a7c37fe3eb8e&w=740" alt="Emma Johnson" class="testimonial-avatar" loading="lazy">
+                <p class="testimonial-text">"I have been a loyal customer of Rokeyla for years, and they never cease to amaze me. Their attention to detail, impeccable craftsmanship, and dedication to quality are unparalleled. Every time I wear a piece from Rokeyla, I feel confident and stylish. Their collections effortlessly blend modern trends with timeless elegance. What sets Rokeyla apart is their commitment to sustainable fashion without compromising on luxury. I can't imagine shopping anywhere else. They have truly redefined what it means to be a fashion-forward brand."</p>
+                <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+                <h6 class="testimonial-author">- Emma Johnson, Fashion Enthusiast</h6>
+              </div>
+            </div>
+            <!-- Testimonial Slide 2 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-content">
+                <img src="https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611713.jpg?t=st=1723936446~exp=1723940046~hmac=0333f9d84abb0bd4b8b24eaf80c544ff6984f58c859f68881a2219448df6470d&w=740" alt="Kelvin Ortega" class="testimonial-avatar" loading="lazy">
+                <p class="testimonial-text">"Rokeyla has set the bar incredibly high in the fashion industry. As someone who is always on the lookout for the latest trends, I am consistently impressed by their ability to deliver innovative designs that don't just follow the trends but set them. The quality of the materials used and the precision in tailoring ensure that every piece feels like it was custom-made just for me. Beyond the clothing, the customer service is exemplary, making every shopping experience seamless and enjoyable. Rokeyla is not just a brand; it’s a lifestyle, and I’m proud to be a part of it."</p>
+                <div class="testimonial-stars">★ ★ ★ ★ ★ </div>
+                <h6 class="testimonial-author">- Kelvin Ortega, Trend Setter</h6>
+              </div>
+            </div>
+            <!-- Testimonial Slide 3 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-content">
+                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436185.jpg?t=st=1723936503~exp=1723940103~hmac=5bfb72806509f6d5287bd82e43674d4b70740d8b0e19059f539add37c9d89e84&w=740" alt="Isabella Smith" class="testimonial-avatar" loading="lazy">
+                <p class="testimonial-text">"The experience of shopping at Rokeyla is nothing short of exceptional. Each collection tells a story, and the brand’s ability to consistently innovate while staying true to their core values is truly remarkable. The materials used are of the highest quality, and the designs are both bold and sophisticated. Rokeyla’s commitment to sustainability resonates with me, and I appreciate their efforts to make a positive impact on the environment. Whether it’s a casual day out or a formal event, Rokeyla has become my go-to for every occasion. They have earned my trust and loyalty through their unwavering dedication to excellence."</p>
+                <div class="testimonial-stars">★ ★ ★ ★<span class="text-white">★</span></div>
+                <h6 class="testimonial-author">- Isabella Smith, Conscious Shopper</h6>
+              </div>
+            </div>
+            <!-- Testimonial Slide 4 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-content">
+                <img src="https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611698.jpg?t=st=1723936550~exp=1723940150~hmac=9009dc6d3e20436799275f903a5dc7a2af0a6679a1e5d31f6e760cfb5c8ae848&w=740" alt="Jonah Okonji" class="testimonial-avatar" loading="lazy">
+                <p class="testimonial-text">"Rokeyla, is my ultimate fashion sanctuary! Their curated collections blend chic trends with timeless elegance, making every purchase a delightful discovery. The quality of their pieces is unmatched, and I appreciate the brand's commitment to sustainable fashion. What truly sets Rokeyla apart is their customer-centric approach. They go above and beyond to ensure customer satisfaction, making every interaction a positive one. I am consistently blown away by their dedication to providing not only beautiful clothing but also an outstanding shopping experience."</p>
+                <div class="testimonial-stars">★ ★ ★ ★ <span class="text-white">★</span></div>
+                <h6 class="testimonial-author">- Jonah Okonji, Devoted Rokeyla Fan</h6>
+              </div>
+            </div>
+            <!-- Carousel Dots -->
+            <div class="carousel-dots">
+              <div class="dot active"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+#}
+
+
+<!-- Why Choose Us Section -->
+<section class="why-choose-us-section py-5 ">
+    <div class="container mt-5 mb-5">
+        <div class="row text-center">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="icon-box">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-globe fa-3x"></i>
+                    </div>
+                    <h5 class="mt-3">Worldwide Shipping</h5>
+                    <p>We deliver to over 100 countries worldwide, ensuring your style knows no bounds.</p>
+                </div>
+            </div>
+        
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="icon-box">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-tags fa-3x"></i>
+                    </div>
+                    <h5 class="mt-3">Exclusive Offers</h5>
+                    <p>Discover limited-time offers and exclusive deals curated just for you.</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="icon-box">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-lock fa-3x"></i>
+                    </div>
+                    <h5 class="mt-3">Secure Payments</h5>
+                    <p>Shop with confidence with our secure and encrypted payment options.</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="icon-box">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-gem fa-3x"></i>
+                    </div>
+                    <h5 class="mt-3">Premium Quality</h5>
+                    <p>Crafted with the finest materials, each piece ensures unmatched quality and durability.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{#
+<!-- Luxury Style Section -->
+<div class="luxury-style-section">
+<section class="">
+    <div class="container">
+        <div class="content">
+            <p class="hero-subtitle2">EXPLORE</p>
+            <h2>Unveil Your True Style</h2>
+            <p>Discover our exclusive collection that blends contemporary fashion with timeless elegance. Elevate your wardrobe with pieces that define sophistication and grace. Don’t miss out on our latest arrivals crafted to perfection just for you.</p>
+            <a href="#" class="btn-shop">SHOP NOW</a>
+        </div>
+    </div>
+</section>
+</div>
+
+</div>
+</div>
+#}
+{% block scripts %}
+<script>
+    var loginStatus = {{ logged_in|tojson }};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    // For each product card
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        const addToCartButton = card.querySelector('.button');
+
+        addToCartButton.addEventListener('click', function(event) {
+            if (typeof loginStatus !== 'undefined' && !loginStatus) {
+                event.preventDefault();
+                window.location.href = "/login"; // Replace with your actual login URL if different
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const loaderOverlay = document.querySelector('.loader-overlay');
+
+    // Simulate a delay for loading (e.g., for testing or until content is fully loaded)
+    setTimeout(() => {
+        loaderOverlay.style.opacity = '0'; // Fade out loader
+        loaderOverlay.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loaderOverlay.style.display = 'none'; // Remove loader from the DOM
+        }, 500); // Match the transition duration
+    }, 2000); // Adjust the delay time as needed
+});
+
+    </script>
+{% endblock scripts %}
+
+
+
+
+{%endblock content%}

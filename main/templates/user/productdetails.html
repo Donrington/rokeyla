@@ -1,0 +1,200 @@
+{% extends 'user/proddetlayout.html' %}
+
+{% block content %}
+<style>
+    
+    body {
+        font-family: 'Raleway', sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+        background: linear-gradient(to bottom, rgba(91, 2, 2, 0.6), rgba(0, 0, 0, 0.3)), 
+                    url("{{ url_for('static', filename=product.images[0].image_url) }}") no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+
+</style>
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+<section class="product-section container mt-5 pt-4">
+    <div class="row">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+        <!-- Product Image -->
+        <div class="col-lg-6 col-md-12 product-image-container text-center text-lg-start mb-4 mb-lg-0">
+            {% if product.images %}
+                <img src="{{ url_for('static', filename=product.images[0].image_url) }}" alt="{{ product.product_name }}" id="mainProductImage" class="img-fluid main-image" loading="lazy">
+            {% else %}
+                <!-- Placeholder image -->
+                <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" id="mainProductImage" class="img-fluid main-image" loading="lazy">
+            {% endif %}
+            <!-- Zoom icon -->
+            <div class="zoom-icon">
+                <i class="fas fa-search-plus"></i>
+            </div>
+        </div>
+        <!-- Product Information -->
+        <div class="col-lg-6 col-md-12 product-details-container">
+            <nav aria-label="breadcrumb" class="breadcrumb-container mb-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">{{ product.category.category_name }}</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">{{ product.product_name }}</li>
+                </ol>
+            </nav>
+
+            <p class="product-category">{{ product.category.category_name }}</p>
+            <h2 class="product-title">{{ product.product_name }}</h2>
+            <p class="product-price" id="productPrice">${{ '%.2f'|format(product.price) }} & Free Shipping</p>
+
+            <p class="product-description">
+                {{ product.description }}
+            </p>
+
+
+
+            
+
+            <!-- Dynamic Price Update -->
+            <!-- Assuming price varies with options; otherwise, you can omit this -->
+            <p class="dynamic-price mt-4">Price: <span id="dynamicPrice">${{ '%.2f'|format(product.price) }}</span></p>
+
+            <!-- Add to Cart Section -->
+            <div class="add-to-cart mt-3 d-flex align-items-center">
+              
+            <!-- Add to Cart Form -->
+            <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Size Options -->
+                {% if product.size_list %}
+                <div class="size-options">
+                    <h5>Select Size:</h5>
+                    {% for size in product.size_list %}
+                        <label>
+                            <input type="radio" name="selected_size" value="{{ size }}" required>
+                            <span>{{ size }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Color Options -->
+                {% if product.color_list %}
+                <div class="color-options mt-3">
+                    <h5>Select Color:</h5>
+                    {% for color in product.color_list %}
+                        <label>
+                            <input type="radio" name="selected_color" value="{{ color }}" required>
+                            <span class="color-swatch" style="background-color: {{ color | lower }};"></span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Quantity Input -->
+                <div class="quantity-input mt-3">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control" style="width: 80px;" required>
+                </div>
+
+                <!-- Add to Cart Button -->
+                <div class="add-to-cart-button mt-4">
+                    <button type="submit" class="button">
+                        <span>Add to cart</span>
+                        <svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g id="cart">
+                                <circle r="1.91" cy="20.59" cx="10.07"></circle>
+                                <circle r="1.91" cy="20.59" cx="18.66"></circle>
+                                <path d="M.52,1.5H3.18a2.87,2.87,0,0,1,2.74,2L9.11,13.91H8.64A2.39,2.39,0,0,0,6.25,16.3h0a2.39,2.39,0,0,0,2.39,2.38h10"></path>
+                                <polyline points="7.21 5.32 22.48 5.32 22.48 7.23 20.57 13.91 9.11 13.91"></polyline>
+                            </g>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Modal for Full Image -->
+    <!-- (Assuming you have JavaScript to handle the modal functionality) -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="fullImage" loading="lazy">
+        <div id="caption"></div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="tabs-section mt-5">
+        <ul class="nav nav-tabs justify-content-center justify-content-lg-start" id="productTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+            </li>
+            <!-- Additional tabs can be included as needed -->
+        </ul>
+        <div class="tab-content" id="productTabContent">
+            <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                <p class="mt-4">{{ product.description }}</p>
+            </div>
+            <!-- Additional tab panes can be included as needed -->
+        </div>
+    </div>
+</section>
+
+<!-- Related Products Section -->
+{% if related_products %}
+<section class="related-products mt-5 pt-4 mb-5 pb-4">
+    <div class="container">
+        <h2 class="text-center mb-4 product-title text-white pb-3">Related products</h2>
+        <div class="row">
+            {% for related_product in related_products %}
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+                <div class="related-product-item">
+                    <a href="{{ url_for('product_details', product_id=related_product.product_id) }}">
+                        <div class="image-wrapper">
+                            {% if related_product.images %}
+                                <img src="{{ url_for('static', filename=related_product.images[0].image_url) }}" alt="{{ related_product.product_name }}" class="img-fluid related-product-image" loading="lazy">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" class="img-fluid related-product-image" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <h5 class="mt-3">{{ related_product.product_name }}</h5>
+                        <p class="product-category">{{ related_product.category.category_name }}</p>
+                        <p class="product-price">${{ '%.2f'|format(related_product.price) }}</p>
+                        <!-- Assuming you have a rating system -->
+                        <div class="rating">
+                            {% for i in range(5) %}
+                                <span>&#9734;</span>
+                            {% endfor %}
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

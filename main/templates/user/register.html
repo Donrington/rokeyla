@@ -1,0 +1,94 @@
+{%extends 'user/reglayout.html'%}
+
+
+{%block content%}
+
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Form -->
+<div class="contain">
+    <form class="form" method="POST" action="{{ url_for('register') }}" data-aos="fade-up">
+        <div class="hero-subtitle">
+            <img src="{{ url_for('static', filename='RokeylaFiles/Logos/Rokeyla Primary Logo White.png') }}" alt="Logo" class="hero-logo">
+        </div>
+        <h2>Create an Account</h2>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <!-- Username Field -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+        <div class="flex-column">
+            <label for="username">Username</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 1.2c-3 0-9 1.5-9 4.5V20h18v-2.3c0-3-6-4.5-9-4.5z"/>
+            </svg>
+            <input type="text" id="username" name="username" class="input" placeholder="Enter your Username" required />
+        </div>
+
+        <!-- Email Field -->
+        <div class="flex-column">
+            <label for="email">Email</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12.713l11.95-7.162v13.888H0V5.551L12 12.713zm0-2.569L0 3.54h24L12 10.144z"/>
+            </svg>
+            <input type="email" id="email" name="email" class="input" placeholder="Enter your Email" required />
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex-column">
+            <label for="password">Password</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 8V6a5 5 0 0 0-10 0v2H5v14h14V8h-2zm-8-2a3 3 0 0 1 6 0v2h-6V6zm8 14H7V10h10v10z"/>
+            </svg>
+            <input type="password" id="password" name="password" class="input" placeholder="Enter your Password" required />
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="flex-column">
+            <label for="confirm_password">Confirm Password</label>
+        </div>
+        <div class="inputForm">
+            <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 8V6a5 5 0 0 0-10 0v2H5v14h14V8h-2zm-8-2a3 3 0 0 1 6 0v2h-6V6zm8 14H7V10h10v10z"/>
+            </svg>
+            <input type="password" id="confirm_password" name="confirm_password" class="input" placeholder="Confirm your Password" required />
+        </div>
+
+        <!-- Sign Up Button -->
+        <button type="submit" class="button-submit">Sign Up</button>
+
+        <!-- Already Have Account -->
+        <p class="p">Already have an account? <span class="span"><a href="{{ url_for('login') }}" class="reglog">Login</a></span></p>
+
+        <!-- Social Login Options -->
+        <div class="flex-row">
+            <button type="button" class="btn google">
+                <i class="fab fa-google"></i>
+                Sign Up with Google
+            </button>
+        </div>
+    </form>
+</div>
+
+
+{%endblock content%}

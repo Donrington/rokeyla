@@ -1,0 +1,287 @@
+{%extends 'user/dashlayout.html'%}
+
+
+{%block header%}
+
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <!-- Mobile Menu Toggle -->
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <div class="welcome-message">
+                <h1>Your Orders</h1>
+                <p>Review your purchase history and track order statuses.</p>
+            </div>
+            <div class="header-right">
+                <!-- Dark Mode Toggle -->
+                <div class="theme-toggle">
+                    <label
+                        for="themeToggle"
+                        class="themeToggle st-sunMoonThemeToggleBtn"
+                        type="checkbox"
+                    >
+                        <input type="checkbox" id="themeToggle" class="themeToggleInput" />
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            stroke="none"
+                        >
+                            <mask id="moon-mask">
+                                <rect x="0" y="0" width="20" height="20" fill="white"></rect>
+                                <circle cx="11" cy="3" r="8" fill="black"></circle>
+                            </mask>
+                            <circle
+                                class="sunMoon"
+                                cx="10"
+                                cy="10"
+                                r="8"
+                                mask="url(#moon-mask)"
+                            ></circle>
+                            <g>
+                                <circle class="sunRay sunRay1" cx="18" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay2" cx="14" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay3" cx="6" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay4" cx="2" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay5" cx="6" cy="3.1718" r="1.5"></circle>
+                                <circle class="sunRay sunRay6" cx="14" cy="3.1718" r="1.5"></circle>
+                            </g>
+                        </svg>
+                    </label>
+                </div>
+                <!-- Notifications -->
+                <div class="notifications" onclick="markNotificationsRead()">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_message_count > 0 %}
+                    <span id="notificationBadge" class="badge">{{ unread_message_count }}</span>
+                    {% endif %}
+                </div>
+    
+                <!-- Notification Modal -->
+                <div id="notificationModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Recent Activity</h2> <br>
+                        <ul class="activity-list">
+                            {% for activity in recent_activity %}
+                            <li>
+                                <div class="activity-icon"><i class="{{ activity.icon }}"></i></div>
+                                <div class="activity-details">
+                                    <p>{{ activity.message }}</p>
+                                    <span class="activity-time">{{ activity.time }}</span>
+                                </div>
+                            </li>
+                            {% else %}
+                            <li>
+                                <p>No recent activity.</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <!-- User Profile -->
+            <!-- User Profile Dropdown -->
+            <div class="user-profile">
+                <button class="user-dropdown-button" aria-haspopup="true" aria-expanded="false">
+                    {% if user.profile_pic %}
+                        <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="User Avatar" class="user-avatar" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="User Avatar" class="user-avatar" loading="lazy">
+                    {% endif %}
+                    <span>{{ user.username }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown-menu">
+                    <ul>
+                        <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                        <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+
+            </div>
+        </header>
+
+
+
+{%endblock%}
+
+
+{%block content%}
+
+
+
+
+        <!-- Profile Form Section -->
+        <section class="profile-section" data-aos="fade-up">
+            <div class="profile-card">
+                <!-- Profile Picture Upload -->
+    
+
+                <!-- Profile Information Form -->
+                <form class="profile-form" method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                      <ul class="flashes">
+                        {% for message in messages %}
+                          <li>{{ message }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  {% endwith %}
+                    <!-- CSRF Token (if using Flask-WTF) -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="profile-picture">
+                        <label class="custom-file-upload" for="profilePicture">
+                            <div class="avatar">
+                                {% if user.profile_pic %}
+                                    <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="User Avatar" id="avatarPreview" loading="lazy">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="User Avatar" id="avatarPreview" loading="lazy">
+                                {% endif %}
+                                <div class="overlay">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                            <input type="file" id="profilePicture" name="profile_picture" accept="image/*">
+                        </label>
+                    </div>
+    
+                    <!-- Username (Disabled) -->
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> Username</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
+                    </div>
+    
+                    <!-- First Name -->
+                    <div class="form-group">
+                        <label for="first_name"><i class="fas fa-user"></i> First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
+                    </div>
+    
+                    <!-- Last Name -->
+                    <div class="form-group">
+                        <label for="last_name"><i class="fas fa-user"></i> Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+                    </div>
+    
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+    
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}">
+                    </div>
+    
+                    <!-- Address -->
+                    <div class="form-group">
+                        <label for="address"><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <input type="text" id="address" name="address" value="{{ user.address }}">
+                    </div>
+    
+                    <!-- City -->
+                    <div class="form-group">
+                        <label for="city"><i class="fas fa-city"></i> City</label>
+                        <input type="text" id="city" name="city" value="{{ user.city }}">
+                    </div>
+    
+                    <!-- Country -->
+                    <div class="form-group">
+                        <label for="country"><i class="fas fa-globe"></i> Country</label>
+                        <select id="country" name="country" required>
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                                <option value="{{ country.iso2 }}" {% if user.country == country.iso2 %}selected{% endif %}>
+                                    {{ country.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+                    
+    
+                    <!-- State/Province -->
+                    <div class="form-group">
+                        <label for="state"><i class="fas fa-map"></i> State/Province</label>
+                        <input type="text" id="state" name="state" value="{{ user.state }}">
+                    </div>
+
+                    <!-- Postal Code -->
+                    <div class="form-group">
+                        <label for="postal_code"><i class="fas fa-mail-bulk"></i> Postal Code</label>
+                        <input type="text" id="postal_code" name="postal_code" value="{{ user.postal_code }}">
+                    </div>
+    
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    
+
+ 
+        <script src="../../static/js/profile.js"></script>
+
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    
+ const countrySelect = document.getElementById('country');
+    const stateSelect = document.getElementById('state');
+    const userState = "{{ user.state|escape }}"; // Get user's state from the template
+
+    // Function to fetch states dynamically
+    async function fetchStates(countryIso2) {
+        // Fetch states logic (to be removed)
+    }
+
+    // Populate states when the page loads
+    if (countrySelect.value) {
+        fetchStates(countrySelect.value);
+    }
+
+    // Update states when the country changes
+    countrySelect.addEventListener('change', function () {
+        // Update states logic (to be removed)
+    });
+        
+
+    // **Profile Picture Preview**
+    const profilePictureInput = document.getElementById('profilePicture');
+    const avatarPreview = document.getElementById('avatarPreview');
+
+    profilePictureInput.addEventListener('change', function (event) {
+        const [file] = event.target.files;
+        if (file) {
+            avatarPreview.src = URL.createObjectURL(file);
+        }
+    });
+});
+
+
+
+</script>
+{%endblock%}
+
+
+{%block customjavascript%}
+
+
+{%endblock%}

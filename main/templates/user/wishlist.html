@@ -1,0 +1,200 @@
+{% extends 'user/dashlayout.html' %}
+
+{% block customcss %}
+
+{% endblock %}
+
+{% block header %}
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <header>
+        <!-- Mobile Menu Toggle -->
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <div class="welcome-message">
+            <h1>Your Wishlist</h1>
+            <p>Save your favorite items for later.</p>
+        </div>
+        <div class="header-right">
+            <!-- Dark Mode Toggle -->
+            <div class="theme-toggle">
+                <div class="theme-toggle">
+                    <label
+                        for="themeToggle"
+                        class="themeToggle st-sunMoonThemeToggleBtn"
+                        type="checkbox"
+                    >
+                        <input type="checkbox" id="themeToggle" class="themeToggleInput" />
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            stroke="none"
+                        >
+                            <mask id="moon-mask">
+                                <rect x="0" y="0" width="20" height="20" fill="white"></rect>
+                                <circle cx="11" cy="3" r="8" fill="black"></circle>
+                            </mask>
+                            <circle
+                                class="sunMoon"
+                                cx="10"
+                                cy="10"
+                                r="8"
+                                mask="url(#moon-mask)"
+                            ></circle>
+                            <g>
+                                <circle class="sunRay sunRay1" cx="18" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay2" cx="14" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay3" cx="6" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay4" cx="2" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay5" cx="6" cy="3.1718" r="1.5"></circle>
+                                <circle class="sunRay sunRay6" cx="14" cy="3.1718" r="1.5"></circle>
+                            </g>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+            <!-- Notifications -->
+            <div class="notifications" onclick="markNotificationsRead()">
+                <i class="fas fa-bell"></i>
+                {% if unread_message_count > 0 %}
+                <span id="notificationBadge" class="badge">{{ unread_message_count }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Notification Modal -->
+            <div id="notificationModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2>Recent Activity</h2> <br>
+                    <ul class="activity-list">
+                        {% for activity in recent_activity %}
+                        <li>
+                            <div class="activity-icon"><i class="{{ activity.icon }}"></i></div>
+                            <div class="activity-details">
+                                <p>{{ activity.message }}</p>
+                                <span class="activity-time">{{ activity.time }}</span>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li>
+                            <p>No recent activity.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <!-- User Profile Dropdown -->
+            <div class="user-profile">
+                <button class="user-dropdown-button" aria-haspopup="true" aria-expanded="false">
+                    {% if user.profile_pic %}
+                        <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="User Avatar" class="user-avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="User Avatar" class="user-avatar">
+                    {% endif %}
+                    <span>{{ user.username }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown-menu">
+                    <ul>
+                        <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                        <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+
+
+{% block content %}
+<!-- Wishlist Content Section --><section class="wishlist-section" data-aos="fade-up">
+    <!-- Wishlist Items -->
+    <div class="wishlist-items">
+        {% if wishlist_items %}
+            {% for wishlist_item, product in wishlist_items %}
+            <div class="wishlist-item" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="wishlist-item-image">
+                    {% if product.images %}
+                        <img src="{{ url_for('static', filename=product.images[0].image_url) }}" alt="{{ product.product_name }}" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/products/default_product.jpg') }}" alt="{{ product.product_name }}" loading="lazy">
+                    {% endif %}
+                </div>
+                <div class="wishlist-item-details">
+                    <h3>{{ product.product_name }}</h3>
+                    <p class="wishlist-item-price">${{ '%.2f' % product.price }}</p>
+                    <p class="wishlist-item-description">{{ product.description }}</p>
+                    <div class="wishlist-item-actions">
+                        <!-- Add to Cart -->
+                        <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="wishlist-btn add-to-cart">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </form>
+                        <!-- Remove from Wishlist -->
+                        <form>
+                            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="button" class="wishlist-btn remove-item"  data-product-id="{{ product.product_id }}" >
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>You have no items in your wishlist.</p>
+        {% endif %}
+    </div>
+</section>
+
+
+<!-- Include JavaScript -->
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+$(document).ready(function () {
+    $('.wishlist-remove').on('change', function () {
+        var productId = $(this).data('product-id'); // Get product ID
+        var isChecked = $(this).is(':checked'); // Check if the checkbox is checked
+        var csrfToken = $('meta[name="csrf-token"]').attr('content'); // Get CSRF token from the meta tag
+
+        // AJAX request to add/remove product from wishlist
+        $.ajax({
+            url: isChecked ? "/add_to_wishlist" : "/remove_from_wishlist", // Determine the URL based on checkbox state
+            type: 'POST',
+            data: {
+                product_id: productId,
+                csrf_token: csrfToken // Include CSRF token
+            },
+            success: function (response) {
+                console.log(response.message); // Log success message
+                alert(response.message); // Optionally show an alert
+                if (!isChecked) {
+                    $(`input[data-product-id="${productId}"]`).closest('.wishlist-item').remove(); // Remove the item from DOM if unchecked
+                }
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr.responseText); // Log error
+                alert('An error occurred while processing your request.'); // Show error alert
+            }
+        });
+    });
+});
+
+
+
+</script>
+{% endblock %}

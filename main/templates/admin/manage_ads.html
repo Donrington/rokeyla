@@ -1,0 +1,46 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<h1>Manage Ads</h1>
+
+<!-- Ad Creation Form -->
+<div class="form-container">
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <textarea name="content" class="form-control" rows="5" placeholder="Enter ad content (HTML allowed)" required></textarea>
+        <div class="form-check custom-form-check">
+            <input class="form-check-input" type="checkbox" name="active" id="active" checked>
+            <label class="form-check-label" for="active">Active</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Create Ad</button>
+    </form>
+</div>
+
+<!-- Existing Ads Table -->
+<h2>Existing Ads</h2>
+<table class="table custom-table">
+    <thead>
+        <tr>
+            <th>Content</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ad in ads %}
+        <tr>
+            <td>{{ ad.content | safe }}</td>
+            <td>{{ 'Yes' if ad.active else 'No' }}</td>
+            <td>
+                <a href="{{ url_for('edit_ad', ad_id=ad.ad_id) }}" class="btn-edit btn-sm">Edit</a>
+                <form method="POST" action="{{ url_for('delete_ad', ad_id=ad.ad_id) }}" style="display:inline-block;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

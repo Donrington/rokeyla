@@ -1,0 +1,68 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_orders.css') }}">
+
+<div class="admin-orders-container">
+    <h1 class="admin-orders-title">All User Orders</h1>
+    
+    <div class="admin-orders-table-responsive">
+        <table class="admin-orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Cancel Request</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.order_id }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>
+                        <span class="admin-order-status {{ order.order_status | lower }}">{{ order.order_status }}</span>
+                    </td>
+                    <td>${{ '%.2f'|format(order.total_amount) }}</td>
+                    <td>
+                        {% if order.cancel_request %}
+                        <span class="admin-order-cancel-request">Yes</span>
+                        {% else %}
+                        <span class="admin-order-cancel-request">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="admin-order-actions">
+                        <!-- Update Status Form -->
+                        <form action="{{ url_for('admin_update_order_status', order_id=order.order_id) }}" method="POST" class="admin-order-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="order_status" class="admin-order-status-select">
+                                <option value="Pending" {% if order.order_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="Shipped" {% if order.order_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="Delivered" {% if order.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="Cancelled" {% if order.order_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                            <button type="submit" class="admin-order-update-btn">Update</button>
+                        </form>
+                        <!-- Deny Cancel Request Form -->
+                        {% if order.cancel_request %}
+                        <form action="{{ url_for('admin_deny_cancel', order_id=order.order_id) }}" method="POST" class="admin-order-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="admin-order-deny-cancel-btn">Deny Cancel</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">No orders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

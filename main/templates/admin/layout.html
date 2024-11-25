@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ pagename }} - Admin Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&family=Lora:wght@700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="https://cdnjs.com/libraries/Chart.js">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <!-- Admin Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admindash.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adminprod.css') }}">
+
+    {% block customcss %}
+    <!-- Additional CSS can be added here -->
+    {% endblock customcss %}
+</head>
+<body> <!-- Removed the admin.theme condition -->
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='RokeylaFiles/Logos/RokeylaLogoIconWhite.png') }}" alt="Admin Logo" class="hero-logo">
+            <div class="logo2">
+                <img src="{{ url_for('static', filename='RokeylaFiles/Logos/Rokeyla Primary Logo White.png') }}" alt="Admin Logo" class="hero-logo2">
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('admin_users') }}" class="{% if request.endpoint == 'admin_users' %}active{% endif %}"><i class="fas fa-user"></i><span>Users</span></a></li>
+            <li><a href="{{ url_for('admin_messages') }}" class="{% if request.endpoint == 'admin_messages' %}active{% endif %}"><i class="fas fa-message"></i><span>Send Messages</span></a></li>
+            <li>
+                <a href="{{ url_for('admin_manage_messages') }}" 
+                   class="{% if request.endpoint == 'admin_manage_messages'%}active{% endif %}">
+                    <i class="fas fa-message"></i>
+                    <span>User Messages</span>
+                </a>
+            </li>
+            
+            <li><a href="{{ url_for('create_product') }}" class="{% if request.endpoint == 'create_product' %}active{% endif %}"><i class="fas fa-box-open"></i><span>Create Products</span></a></li>
+            <li><a href="{{ url_for('admin_products') }}" class="{% if request.endpoint == 'admin_products' %}active{% endif %}"><i class="fas fa-box"></i><span>Products</span></a></li>
+            <li><a href="{{ url_for('admin_user_orders') }}" class="{% if request.endpoint == 'admin_user_orders' %}active{% endif %}"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
+            <li><a href="{{ url_for('admin_coupons') }}" class="{% if request.endpoint == 'admin_coupons' %}active{% endif %}"><i class="fas fa-shopping-cart"></i><span>Create Coupons</span></a></li>
+            <li><a href="{{ url_for('manage_ads') }}" class="{% if request.endpoint == 'manage_ads' %}active{% endif %}"><i class="fa-solid fa-rectangle-ad"></i><span>Create Ads</span></a></li>
+            <li><a href="{{ url_for('view_subscribers') }}" class="{% if request.endpoint == 'view_subscribers' %}active{% endif %}"><i class="fa-solid fa-envelope"></i><span>Newsletter Subscribers</span></a></li>
+            <li><a href="{{ url_for('admin_reports') }}" class="{% if request.endpoint == 'admin_reports' %}active{% endif %}"><i class="fas fa-chart-line"></i><span>Reports</span></a></li>
+            <li><a href="{{ url_for('admin_settings') }}" class="{% if request.endpoint == 'admin_settings' %}active{% endif %}"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            <li><a href="{{ url_for('admin_logout') }}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Menu Toggle for Mobile -->
+  
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+              <div class="menu-toggle" id="adminMenuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+            <div class="welcome-message">
+                <h1>Welcome, {{ admin.username }}</h1>
+                <p>Manage your store efficiently.</p>
+            </div>
+            <div class="header-right">
+                <!-- Dark Mode Toggle -->
+                <div class="theme-toggle">
+                    <label for="adminThemeToggle" class="themeToggle st-sunMoonThemeToggleBtn">
+                        <input type="checkbox" id="adminThemeToggle" class="themeToggleInput" />
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" stroke="none">
+                            <mask id="admin-moon-mask">
+                                <rect x="0" y="0" width="20" height="20" fill="white"></rect>
+                                <circle cx="11" cy="3" r="8" fill="black"></circle>
+                            </mask>
+                            <circle class="sunMoon" cx="10" cy="10" r="8" mask="url(#admin-moon-mask)"></circle>
+                            <g>
+                                <circle class="sunRay sunRay1" cx="18" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay2" cx="14" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay3" cx="6" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay4" cx="2" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay5" cx="6" cy="3.1718" r="1.5"></circle>
+                                <circle class="sunRay sunRay6" cx="14" cy="3.1718" r="1.5"></circle>
+                            </g>
+                        </svg>
+                    </label>
+                </div>
+
+                <!-- Search Bar -->
+                <!-- <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search Admin Dashboard...">
+                </div> -->
+
+                <!-- Notifications -->
+           <!-- Header Right Section -->
+
+    <!-- Other header items -->
+            <div class="notifications" onclick="openNotifications()">
+                <i class="fas fa-bell"></i>
+                {% if unread_notifications_count > 0 %}
+                    <span id="notificationBadge" class="badge">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </div>
+            <!-- User profile dropdown -->
+
+        <!-- Notification Modal -->
+        <div id="notificationModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Notifications</h2>
+                <ul class="notification-list">
+                    {% for notification in recent_notifications %}
+                        <li class="{% if not notification.is_read %}unread{% endif %}">
+                            <div class="notification-icon"><i class="{{ notification.icon }}"></i></div>
+                            <div class="notification-details">
+                                <p><a href="{{ notification.link }}">{{ notification.message }}</a></p>
+                                <span class="notification-time">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li>
+                            <p>No notifications.</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="user-profile">
+                    <button class="user-dropdown-button" aria-haspopup="true" aria-expanded="false">
+                        {% if admin.profile_pic %}
+                            <img src="{{ url_for('static', filename=admin.profile_pic) }}" alt="Admin Avatar" class="user-avatar">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="Admin Avatar" class="user-avatar">
+                        {% endif %}
+                        <span>{{ admin.username }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown-menu">
+                        <ul>
+                            <li><a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="{{ url_for('admin_profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                            <li><a href="{{ url_for('admin_settings') }}"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a href="{{ url_for('admin_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page-Specific Content -->
+            {% block content %}
+            <!-- Admin-specific content will be injected here -->
+            {% endblock content %}
+
+            <!-- Footer -->
+            <footer>
+                <p>&copy; 2024 Rokeyla Admin. All rights reserved.</p>
+            </footer>
+        </div>
+
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- AOS Library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+        <!-- Chart.js Library (Optional) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Admin Custom JS -->
+        <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+        <script>
+            AOS.init({
+                duration: 1200,
+                once: true,
+            });
+
+
+      
+            // Theme Toggle Functionality
+            const adminToggleSwitch = document.getElementById('adminThemeToggle');
+            const adminBody = document.body;
+
+            // Check for saved theme
+            if (localStorage.getItem('admin-theme') === 'dark') {
+                adminBody.classList.add('dark-theme');
+                adminToggleSwitch.checked = true;
+            }
+// In your admin_dashboard.js or equivalent script
+                document.addEventListener('DOMContentLoaded', function() {
+                    const adminToggleSwitch = document.getElementById('adminThemeToggle');
+                    const adminBody = document.body;
+
+                    // Apply the admin's saved theme preference
+                    {% if admin.theme_preference == 'dark' %}
+                        adminBody.classList.add('dark-theme');
+                        adminToggleSwitch.checked = true;
+                    {% else %}
+                        adminBody.classList.remove('dark-theme');
+                    {% endif %}
+
+                    adminToggleSwitch.addEventListener('change', () => {
+                        adminBody.classList.toggle('dark-theme');
+                        // Optionally, send an AJAX request to save the preference
+                    });
+                });
+
+            // User Dropdown Toggle
+            const adminUserDropdownButton = document.querySelector('.user-dropdown-button');
+            const adminUserDropdownMenu = document.querySelector('.user-dropdown-menu');
+
+            adminUserDropdownButton.addEventListener('click', (e) => {
+                e.stopPropagation();  // Prevent the click from bubbling up
+                adminUserDropdownMenu.classList.toggle('show');
+                adminUserDropdownButton.classList.toggle('open');
+            });
+
+            // Close dropdown when clicking outside
+            window.addEventListener('click', (e) => {
+                if (!adminUserDropdownButton.contains(e.target) && !adminUserDropdownMenu.contains(e.target)) {
+                    adminUserDropdownMenu.classList.remove('show');
+                    adminUserDropdownButton.classList.remove('open');
+                }
+            });
+
+            // Sidebar Toggle for Mobile
+   // Sidebar Toggle for Mobile
+            const adminMenuToggle = document.getElementById('adminMenuToggle');
+            const adminSidebar = document.querySelector('.sidebar');
+            const adminMainContent = document.querySelector('.main-content');
+
+            adminMenuToggle.addEventListener('click', () => {
+                adminSidebar.classList.toggle('active');
+
+                // Toggle main content width based on sidebar visibility
+                if (adminSidebar.classList.contains('active')) {
+                    adminMainContent.classList.add('sidebar-active');
+                } else {
+                    adminMainContent.classList.remove('sidebar-active');
+                }
+            });
+
+   
+    function openNotifications() {
+        document.getElementById('notificationModal').style.display = 'block';
+        markNotificationsRead();
+    }
+
+    function closeModal() {
+        document.getElementById('notificationModal').style.display = 'none';
+    }
+
+    function markNotificationsRead() {
+        fetch('{{ url_for("mark_notifications_read") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({})
+        }).then(response => {
+            if (response.ok) {
+                // Hide the notification badge
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+
+        </script>
+        {% block customjavascript %}
+        <!-- Additional JavaScript can be added here -->
+        {% endblock customjavascript %}
+    </body>
+</html>

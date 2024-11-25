@@ -1,0 +1,192 @@
+{% extends 'user/dashlayout.html' %}
+
+
+
+{% block header %}
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <header>
+        <!-- Mobile Menu Toggle -->
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <div class="welcome-message">
+            <h1>Your Orders</h1>
+            <p>Review your purchase history and track order statuses.</p>
+        </div>
+        <div class="header-right">
+            <!-- Dark Mode Toggle -->
+            <div class="theme-toggle">
+                <label
+                    for="themeToggle"
+                    class="themeToggle st-sunMoonThemeToggleBtn"
+                    type="checkbox"
+                >
+                    <input type="checkbox" id="themeToggle" class="themeToggleInput" />
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        stroke="none"
+                    >
+                        <mask id="moon-mask">
+                            <rect x="0" y="0" width="20" height="20" fill="white"></rect>
+                            <circle cx="11" cy="3" r="8" fill="black"></circle>
+                        </mask>
+                        <circle
+                            class="sunMoon"
+                            cx="10"
+                            cy="10"
+                            r="8"
+                            mask="url(#moon-mask)"
+                        ></circle>
+                        <g>
+                            <circle class="sunRay sunRay1" cx="18" cy="10" r="1.5"></circle>
+                            <circle class="sunRay sunRay2" cx="14" cy="16.928" r="1.5"></circle>
+                            <circle class="sunRay sunRay3" cx="6" cy="16.928" r="1.5"></circle>
+                            <circle class="sunRay sunRay4" cx="2" cy="10" r="1.5"></circle>
+                            <circle class="sunRay sunRay5" cx="6" cy="3.1718" r="1.5"></circle>
+                            <circle class="sunRay sunRay6" cx="14" cy="3.1718" r="1.5"></circle>
+                        </g>
+                    </svg>
+                </label>
+            </div>
+            <!-- Notifications -->
+            <div class="notifications" onclick="markNotificationsRead()">
+                <i class="fas fa-bell"></i>
+                {% if unread_message_count > 0 %}
+                <span id="notificationBadge" class="badge">{{ unread_message_count }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Notification Modal -->
+            <div id="notificationModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2>Recent Activity</h2> <br>
+                    <ul class="activity-list">
+                        {% for activity in recent_activity %}
+                        <li>
+                            <div class="activity-icon"><i class="{{ activity.icon }}"></i></div>
+                            <div class="activity-details">
+                                <p>{{ activity.message }}</p>
+                                <span class="activity-time">{{ activity.time }}</span>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li>
+                            <p>No recent activity.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <!-- User Profile -->
+            <!-- User Profile Dropdown -->
+            <div class="user-profile">
+                <button class="user-dropdown-button" aria-haspopup="true" aria-expanded="false">
+                    {% if user.profile_pic %}
+                        <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="User Avatar" class="user-avatar" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="User Avatar" class="user-avatar" loading="lazy">
+                    {% endif %}
+                    <span>{{ user.username }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown-menu">
+                    <ul>
+                        <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+                        <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+
+<div class="order-details-container">
+    <h1 class="section-title">Order #{{ order.order_id }}</h1>
+
+    <!-- Order Summary -->
+    <div class="order-summary-card">
+        <div class="order-summary-header">
+            <h2>Order Summary</h2>
+            <span class="order-status {{ order.order_status|lower }}">{{ order.order_status }}</span>
+        </div>
+        <div class="order-meta">
+            <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ order.created_at }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-credit-card"></i>
+                <span>{{ order.payment_method }}</span>
+            </div>
+        </div>
+        <div class="shipping-address">
+            <h3>Shipping Address</h3>
+            <p>{{ order.shipping_address|replace('\n', '<br>')|safe }}</p>
+        </div>
+    </div>
+
+    <!-- Products in Order -->
+    <div class="products-section2">
+        <h2 class="section-subtitle">Products</h2>
+        <div class="products-grid2">
+            {% for item in order.order_items %}
+            <div class="product-card2">
+                <div class="product-image2">
+                    <img src="{{ url_for('static', filename=item.image_url) }}" alt="{{ item.product_name }}" loading="lazy">
+                </div>
+                <div class="product-info2">
+                    <h3 class="product-name2">{{ item.product_name }}</h3>
+                    <div class="product-details2">
+                        <span class="product-size"><strong>Size:</strong> {{ item.size }}</span>
+                        <span class="product-color"><strong>Color:</strong> {{ item.color }}</span>
+                    </div>
+                    <div class="product-pricing">
+                        <span class="price">${{ '%.2f'|format(item.price) }}</span>
+                        <span class="quantity"><strong>Qty:</strong> {{ item.quantity }}</span>
+                        <span class="subtotal"><strong>Subtotal:</strong> ${{ '%.2f'|format(item.subtotal) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-items">
+                <p>Your order has no items.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Total Amount -->
+    <div class="total-amount-section">
+        <h2 class="section-subtitle">Total</h2>
+        <div class="total-amount">
+            <span>Total Amount:</span>
+            <span>${{ '%.2f'|format(order.total_amount) }}</span>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const loaderOverlay = document.querySelector('.loader-overlay');
+
+    // Simulate a delay for loading (e.g., for testing or until content is fully loaded)
+    setTimeout(() => {
+        loaderOverlay.style.opacity = '0'; // Fade out loader
+        loaderOverlay.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loaderOverlay.style.display = 'none'; // Remove loader from the DOM
+        }, 500); // Match the transition duration
+    }, 2000); // Adjust the delay time as needed
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{pagename}}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&family=Lora:wght@700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- AOS CSS -->
+   
+
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+
+    {%block customcss%}
+
+    {%endblock customcss%}
+</head>
+<body class="{% if user.theme == 'dark' %}dark-theme{% endif %}">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="../../static/RokeylaFiles/Logos/RokeylaLogoIconWhite.png" alt="Logo" class="hero-logo">
+            <div class="logo2">
+                <img src="../../static/RokeylaFiles/Logos/Rokeyla Primary Logo White.png" alt="Logo" class="hero-logo2">
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}"><i class="fas fa-user"></i><span>Profile</span></a></li>
+            <li><a href="{{ url_for('messages') }}" class="{% if request.endpoint == 'messages' %}active{% endif %}"><i class="fas fa-message"></i><span>Messages</span></a></li>
+            <li><a href="{{ url_for('orders') }}" class="{% if request.endpoint == 'orders' %}active{% endif %}"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
+            <li><a href="{{ url_for('wishlist') }}" class="{% if request.endpoint == 'wishlist' %}active{% endif %}"><i class="fas fa-heart"></i><span>Wishlist</span></a></li>
+            <li><a href="{{ url_for('settings') }}" class="{% if request.endpoint == 'settings' %}active{% endif %}"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </nav>
+    
+
+    {%block header%}
+
+
+{%endblock header%}
+
+
+{%block content%}
+       
+        {%endblock content%}
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 Rokeyla. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- AOS Library -->
+
+   <!-- Include jQuery from a CDN -->
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <!-- Chart.js Library (Optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="../../static/js/dashboard.js"></script>
+    <script>
+        AOS.init({
+            duration: 1200,
+            once: true,
+        });
+
+       
+
+    
+    var modal = document.getElementById("notificationModal");
+
+    // Function to open the modal and mark notifications as read
+    function markNotificationsRead() {
+        modal.style.display = "block";
+
+        // Send a request to the backend to mark notifications as read
+        fetch('/mark_notifications_read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}' // Ensure CSRF protection
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Hide the notification badge
+                const badge = document.getElementById("notificationBadge");
+                if (badge) badge.style.display = "none";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    $(document).ready(function() {
+        $('.like').on('change', function() {
+            var productId = $(this).data('product-id');
+            var isChecked = $(this).is(':checked');
+            var csrfToken = "{{ csrf_token() }}";
+
+            $.ajax({
+                url: isChecked ? "/add_to_wishlist" : "/remove_from_wishlist",
+                type: 'POST',
+                data: {
+                    product_id: productId,
+                    csrf_token: csrfToken
+                },
+                success: function(response) {
+                    console.log(response.message);
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    const loaderOverlay = document.querySelector('.loader-overlay');
+
+    // Simulate a delay for loading (e.g., for testing or until content is fully loaded)
+    setTimeout(() => {
+        loaderOverlay.style.opacity = '0'; // Fade out loader
+        loaderOverlay.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loaderOverlay.style.display = 'none'; // Remove loader from the DOM
+        }, 500); // Match the transition duration
+    }, 2000); // Adjust the delay time as needed
+});
+
+
+</script>
+
+        
+
+
+    {%block customjavascript%}
+    {%endblock customjavascript%}
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'user/404layout.html' %}
+
+
+
+{% block content %}
+<div class="cloak__wrapper">
+    <div class="cloak__container">
+        <div class="cloak"></div>
+    </div>
+</div>
+<div class="info">
+    <h1>
+        <span class="maroon">4</span>
+        <span class="salmon">0</span>
+        <span class="maroon">4</span>
+    </h1>
+    <h2>We can't find that page</h2>
+    <p>We're fairly sure that page used to be here, but it seems to have gone missing. We apologize for the inconvenience.</p>
+ <div class="link-wrapper-btn">
+  <a href="{{ url_for('index') }}">Home</a>
+ </div>
+</div>
+{% endblock content %}

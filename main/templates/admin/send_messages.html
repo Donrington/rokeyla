@@ -1,0 +1,50 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+
+<div class="admin-message-container">
+    <h1 class="admin-message-header">Send Message to User</h1>
+
+    <form action="{{ url_for('admin_messages') }}" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-info mt-4">
+                {% for category, message in messages %}
+                    <p class="mb-1">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <div class="form-group">
+            <label for="receiver_id">Select User:</label>
+            <select name="receiver_id" id="receiver_id" class="form-control">
+                <option value="" disabled selected>Select a User</option>
+                {% for user in users %}
+                <option value="{{ user.user_id }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <div class="form-group">
+            <label for="subject">Subject:</label>
+            <input type="text" name="subject" id="subject" class="form-control" required>
+        </div>
+    
+        <div class="form-group">
+            <label for="content">Message:</label>
+            <textarea name="content" id="content" class="form-control" rows="5" required></textarea>
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
+
+
+
+
+
+
+
+{%endblock content%}

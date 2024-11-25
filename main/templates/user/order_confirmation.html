@@ -1,0 +1,14 @@
+{% extends 'user/homelayout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Order Confirmation</h1>
+    <p>Thank you for your order!</p>
+    <h3>Order Details</h3>
+    <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+    <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+    <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+    <p><strong>Status:</strong> {{ order.order_status }}</p>
+    <a href="{{ url_for('orders') }}" class="btn btn-primary">View Orders</a>
+</div>
+{% endblock %}

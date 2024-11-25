@@ -1,0 +1,402 @@
+{%extends 'user/dashlayout.html'%}
+   
+{%block customcss%}
+
+<!-- Custom CSS -->
+    <link rel="stylesheet" href="../../static/css/settings.css">
+{%endblock%}
+
+
+{%block content%}
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+         <!-- Sidebar content (same as in the dashboard) -->
+   
+        <header>
+            <!-- Mobile Menu Toggle -->
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <div class="welcome-message">
+                <h1>Settings</h1>
+                <p>Manage your account preferences and configurations.</p>
+            </div>
+            <div class="header-right">
+                <div class="theme-toggle">
+                    <label
+                        for="themeToggle"
+                        class="themeToggle st-sunMoonThemeToggleBtn"
+                        type="checkbox"
+                    >
+                        <input type="checkbox" id="themeToggle" class="themeToggleInput" />
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            stroke="none"
+                        >
+                            <mask id="moon-mask">
+                                <rect x="0" y="0" width="20" height="20" fill="white"></rect>
+                                <circle cx="11" cy="3" r="8" fill="black"></circle>
+                            </mask>
+                            <circle
+                                class="sunMoon"
+                                cx="10"
+                                cy="10"
+                                r="8"
+                                mask="url(#moon-mask)"
+                            ></circle>
+                            <g>
+                                <circle class="sunRay sunRay1" cx="18" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay2" cx="14" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay3" cx="6" cy="16.928" r="1.5"></circle>
+                                <circle class="sunRay sunRay4" cx="2" cy="10" r="1.5"></circle>
+                                <circle class="sunRay sunRay5" cx="6" cy="3.1718" r="1.5"></circle>
+                                <circle class="sunRay sunRay6" cx="14" cy="3.1718" r="1.5"></circle>
+                            </g>
+                        </svg>
+                    </label>
+                </div>
+                <!-- Notifications -->
+                <div class="notifications" onclick="markNotificationsRead()">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_message_count > 0 %}
+                    <span id="notificationBadge" class="badge">{{ unread_message_count }}</span>
+                    {% endif %}
+                </div>
+    
+                <!-- Notification Modal -->
+                <div id="notificationModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Recent Activity</h2> <br>
+                        <ul class="activity-list">
+                            {% for activity in recent_activity %}
+                            <li>
+                                <div class="activity-icon"><i class="{{ activity.icon }}"></i></div>
+                                <div class="activity-details">
+                                    <p>{{ activity.message }}</p>
+                                    <span class="activity-time">{{ activity.time }}</span>
+                                </div>
+                            </li>
+                            {% else %}
+                            <li>
+                                <p>No recent activity.</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <!-- User Profile -->
+          <!-- User Profile Dropdown -->
+      <!-- User Profile Dropdown -->
+<div class="user-profile">
+    <button class="user-dropdown-button" aria-haspopup="true" aria-expanded="false">
+        {% if user.profile_pic %}
+            <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="User Avatar" class="user-avatar">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/avatars/av2.webp') }}" alt="User Avatar" class="user-avatar">
+        {% endif %}
+        <span>{{ user.username }}</span>
+        <i class="fas fa-chevron-down"></i>
+    </button>
+    <div class="user-dropdown-menu">
+        <ul>
+            <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul class="flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}
+            </div>
+            
+        </header>
+
+<!-- Settings Content Section -->
+<section class="settings-section" data-aos="fade-up">
+    <!-- Language Preferences -->
+<!-- Language Preferences -->
+<div class="settings-card" data-aos="fade-up" data-aos-delay="100">
+    <h2><i class="fas fa-language"></i> Language Preferences</h2>
+    <form class="settings-form" method="POST" action="{{ url_for('update_language') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="settings-form-group">
+            <label for="language"><i class="fas fa-globe"></i> Select Language</label>
+            <select id="language" name="language">
+                <option value="en" {% if user.language == 'en' %}selected{% endif %}>English</option>
+                <option value="es" {% if user.language == 'es' %}selected{% endif %}>Spanish</option>
+                <option value="fr" {% if user.language == 'fr' %}selected{% endif %}>French</option>
+                <option value="de" {% if user.language == 'de' %}selected{% endif %}>German</option>
+                <!-- Add more languages as needed -->
+            </select>
+        </div>
+        <div class="settings-form-actions">
+            <button type="submit" class="settings-btn">Update Language</button>
+        </div>
+    </form>
+</div>
+
+
+    <!-- Theme Settings -->
+    <div class="settings-card" data-aos="fade-up" data-aos-delay="200">
+        <h2><i class="fas fa-paint-brush"></i> Theme Settings</h2>
+        <form class="settings-form" method="POST" action="{{ url_for('update_theme') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="settings-form-group">
+                <label for="theme"><i class="fas fa-adjust"></i> Choose Theme</label>
+                <select id="theme" name="theme">
+                    <option value="light" {% if user.theme == 'light' %}selected{% endif %}>Light Mode</option>
+                    <option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>Dark Mode</option>
+                </select>
+            </div>
+            <div class="settings-form-actions">
+                <button type="submit" class="settings-btn">Update Theme</button>
+            </div>
+        </form>
+    </div>
+
+  <!-- Connected Accounts -->
+<!-- Connected Accounts -->
+<div class="settings-card" data-aos="fade-up" data-aos-delay="300">
+    <h2><i class="fas fa-link"></i> Connected Accounts</h2>
+    <div class="connected-accounts">
+        <!-- Facebook Account -->
+        <div class="account-item">
+            <i class="fab fa-facebook"></i>
+            <span>Facebook</span>
+            {% if user.facebook_id %}
+                <!-- Disconnect Facebook -->
+                <form action="{{ url_for('disconnect_facebook') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="disconnect-btn">Disconnect</button>
+                </form>
+            {% else %}
+                <!-- Connect Facebook -->
+                <a href="{{ url_for('facebook.login') }}" class="connect-btn">Connect</a>
+            {% endif %}
+        </div>
+        
+        <!-- Google Account -->
+        <div class="account-item">
+            <i class="fab fa-google"></i>
+            <span>Google</span>
+            {% if user.google_id %}
+                <!-- Disconnect Google -->
+                <form action="{{ url_for('disconnect_google') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="disconnect-btn">Disconnect</button>
+                </form>
+            {% else %}
+                <!-- Connect Google -->
+                <a href="{{ url_for('google.login') }}" class="connect-btn">Connect</a>
+            {% endif %}
+        </div>
+        
+        <!-- Add more accounts as needed following the same pattern -->
+    </div>
+</div>
+
+
+    <!-- Privacy Settings -->
+    <div class="settings-card" data-aos="fade-up" data-aos-delay="400">
+        <h2><i class="fas fa-user-shield"></i> Privacy Settings</h2>
+        <form class="settings-form">
+            <div class="settings-form-group">
+                <div class="checkbox-wrapper">
+                    <label class="toggleButton">
+                        <input type="checkbox" id="twoFactorAuth" name="twoFactorAuth">
+                        <div>
+                            <svg viewBox="0 0 44 44">
+                                <path
+                                    transform="translate(-2.000000, -2.000000)"
+                                    d="M14,24 L21,31 L39.7428882,11.5937758
+                                    C35.2809627,6.53125861 30.0333333,4 24,4
+                                    C12.95,4 4,12.95 4,24
+                                    C4,35.05 12.95,44 24,44
+                                    C35.05,44 44,35.05 44,24
+                                    C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758"
+                                ></path>
+                            </svg>
+                        </div>
+                    </label>
+                    <span>Enable Two-Factor Authentication</span>
+                </div>
+            </div>
+            <div class="settings-form-group">
+                <div class="checkbox-wrapper">
+                    <label class="toggleButton">
+                        <input type="checkbox" id="dataSharing" name="dataSharing" checked>
+                        <div>
+                            <svg viewBox="0 0 44 44">
+                                <path
+                                    transform="translate(-2.000000, -2.000000)"
+                                    d="M14,24 L21,31 L39.7428882,11.5937758
+                                    C35.2809627,6.53125861 30.0333333,4 24,4
+                                    C12.95,4 4,12.95 4,24
+                                    C4,35.05 12.95,44 24,44
+                                    C35.05,44 44,35.05 44,24
+                                    C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758"
+                                ></path>
+                            </svg>
+                        </div>
+                    </label>
+                    <span>Allow Data Sharing with Partners</span>
+                </div>
+            </div>
+            <div class="settings-form-actions">
+                <button type="submit" class="settings-btn">Update Privacy Settings</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="settings-card" data-aos="fade-up" data-aos-delay="500">
+        <h2><i class="fas fa-bell"></i> Notification Settings</h2>
+        <form class="settings-form">
+            <div class="settings-form-group">
+                <div class="checkbox-wrapper">
+                    <label class="toggleButton">
+                        <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
+                        <div>
+                            <svg viewBox="0 0 44 44">
+                                <path
+                                    transform="translate(-2.000000, -2.000000)"
+                                    d="M14,24 L21,31 L39.7428882,11.5937758
+                                    C35.2809627,6.53125861 30.0333333,4 24,4
+                                    C12.95,4 4,12.95 4,24
+                                    C4,35.05 12.95,44 24,44
+                                    C35.05,44 44,35.05 44,24
+                                    C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758"
+                                ></path>
+                            </svg>
+                        </div>
+                    </label>
+                    <span>Email Notifications</span>
+                </div>
+            </div>
+            <div class="settings-form-group">
+                <div class="checkbox-wrapper">
+                    <label class="toggleButton">
+                        <input type="checkbox" id="smsNotifications" name="smsNotifications">
+                        <div>
+                            <svg viewBox="0 0 44 44">
+                                <path
+                                    transform="translate(-2.000000, -2.000000)"
+                                    d="M14,24 L21,31 L39.7428882,11.5937758
+                                    C35.2809627,6.53125861 30.0333333,4 24,4
+                                    C12.95,4 4,12.95 4,24
+                                    C4,35.05 12.95,44 24,44
+                                    C35.05,44 44,35.05 44,24
+                                    C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758"
+                                ></path>
+                            </svg>
+                        </div>
+                    </label>
+                    <span>SMS Notifications</span>
+                </div>
+            </div>
+            <div class="settings-form-actions">
+                <button type="submit" class="settings-btn">Update Notification Settings</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+{%endblock%}
+
+    {%block customjavascript%}
+
+
+  
+  
+  <script>
+        AOS.init({
+            duration: 1200,
+            once: true,
+        });
+
+        // Settings Page Functionality
+
+// Close sidebar when clicking outside (Mobile view)
+document.addEventListener('click', function (event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const mainContent = document.getElementById('mainContent');
+
+    if (window.innerWidth <= 768) {
+        if (sidebar && menuToggle && mainContent) {
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('blur');
+            }
+        }
+    }
+});
+
+// Auto-submit theme form when selection changes
+document.addEventListener('DOMContentLoaded', function () {
+    const themeSelect = document.getElementById('theme');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function () {
+            // Submit the form containing this select
+            this.form.submit();
+        });
+    }
+});
+
+// Auto-submit language form when selection changes
+document.addEventListener('DOMContentLoaded', function () {
+    const languageSelect = document.getElementById('language');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', function () {
+            // Submit the form containing this select
+            this.form.submit();
+        });
+    }
+});
+
+// Connected Accounts
+document.addEventListener('DOMContentLoaded', function () {
+    const accountItems = document.querySelectorAll('.account-item');
+
+    accountItems.forEach(function (item) {
+        const connectButton = item.querySelector('.connect-btn');
+        const disconnectButton = item.querySelector('.disconnect-btn');
+
+        if (connectButton) {
+            // No additional JavaScript needed; clicking the connect button (a link) will navigate to the OAuth login URL
+            // You may add an event listener if you need to handle anything else
+        }
+
+        if (disconnectButton) {
+            disconnectButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                // For disconnecting, submit the form
+                const form = this.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            });
+        }
+    });
+});
+
+
+    </script>
+
+
+{%endblock%}

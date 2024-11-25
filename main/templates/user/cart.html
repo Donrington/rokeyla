@@ -1,0 +1,142 @@
+{% extends 'user/cartlayout.html' %}
+
+{% block content %}
+<div class="loader-overlay">
+    <div class="frame">
+        <div class="center">
+            <div class="dot-1"></div>
+            <div class="dot-2"></div>
+            <div class="dot-3"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <h1 class="section-title">Your Shopping Cart</h1>
+
+    <!-- Cart Table -->
+    <form action="{{ url_for('update_cart') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="table-responsive">
+            <table class="table cart-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Size</th>
+                        <th scope="col">Color</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Subtotal</th>
+                        <th scope="col">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td class="product-thumbnail">
+                            {% if item.product.images %}
+                                <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.product_name }}" loading="lazy">
+                            {% else %}
+                                <!-- Placeholder image -->
+                                <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="No Image Available" loading="lazy">
+                            {% endif %}
+                            <span class="product-name">{{ item.product.product_name }}
+                                <span class="product-size">Size: {{ item.size }}</span>
+                                <span class="product-color">Color: {{ item.color }}</span>
+                            </span>
+                        </td>
+                        <td class="price">${{ '%.2f'|format(item.product.price) }}</td>
+                        <td class="size">
+                            <span>{{ item.size }}</span>
+                        </td>
+                        <td class="color">
+                            <span>{{ item.color }}</span>
+                        </td>
+                        <td>
+                            <input type="number" name="quantity_{{ item.product.product_id }}_{{ item.size }}_{{ item.color }}" class="quantity-input" value="{{ item.quantity }}" min="1">
+                        </td>
+                        <td class="subtotal">${{ '%.2f'|format(item.product.price * item.quantity) }}</td>
+                        <td>
+                            <button type="submit" 
+                            formaction="{{ url_for('remove_from_cart', product_id=item.product.product_id, size=item.size, color=item.color) }}" 
+                            class="remove-btn" 
+                            title="Remove Item">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7">Your cart is empty.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cart Actions -->
+        <div class="coupon-application-container">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <ul class="flashes">
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+            <h2>Have a Coupon?</h2>
+            <div class="coupon-box">
+                <input type="text" name="coupon_code" placeholder="Enter Coupon Code">
+                <button type="submit" formaction="{{ url_for('apply_coupon') }}" class="custom-btn-type2">Apply Coupon</button>
+            </div>
+            <button type="submit" class="update-cart-btn">Update Cart</button>
+        </div>
+    </form>
+
+    <!-- Cart Totals -->
+    <div class="cart-totals">
+        <h3>Cart Totals</h3>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td>Subtotal</td>
+                    <td class="subtotal-amount">${{ '%.2f'|format(cart_subtotal) }}</td>
+                </tr>
+                {% if discount > 0 %}
+                <tr>
+                    <td>Discount ({{ coupon_code }})</td>
+                    <td class="subtotal-amount">- ${{ '%.2f'|format(discount) }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td class="total-amount"><strong>${{ '%.2f'|format(cart_total) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <form action="{{ url_for('create_checkout_session') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary">Pay with Stripe</button>
+        </form>
+        
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const loaderOverlay = document.querySelector('.loader-overlay');
+
+    // Simulate a delay for loading (e.g., for testing or until content is fully loaded)
+    setTimeout(() => {
+        loaderOverlay.style.opacity = '0'; // Fade out loader
+        loaderOverlay.style.transition = 'opacity 0.5s ease-in-out';
+        setTimeout(() => {
+            loaderOverlay.style.display = 'none'; // Remove loader from the DOM
+        }, 500); // Match the transition duration
+    }, 2000); // Adjust the delay time as needed
+});
+
+</script>
+{% endblock %}

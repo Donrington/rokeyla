@@ -1,0 +1,26 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<div class="manage-messages-container">
+    <h1>Manage Messages</h1>
+    <div class="user-messages-list">
+        {% for item in user_messages %}
+            <div class="user-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="user-info">
+                    <img src="{{ url_for('static', filename=item.user.profile_pic or 'images/default-avatar.png') }}" alt="{{ item.user.username }}" class="user-avatar">
+                    <div class="user-details">
+                        <h2>{{ item.user.username }}</h2>
+                        <p>{{ item.user.email }}</p>
+                    </div>
+                </div>
+                <div class="message-info">
+                    <p>Messages Sent: <span>{{ item.message_count }}</span></p>
+                    <a href="{{ url_for('admin_view_user_messages', user_id=item.user.user_id) }}" class="btn-primary">View Messages</a>
+                </div>
+            </div>
+        {% else %}
+            <p>No users found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

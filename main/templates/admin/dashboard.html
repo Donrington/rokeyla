@@ -1,0 +1,210 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+    <!-- Dashboard Metrics -->
+<!-- Include Font Awesome CDN in your HTML head if not already included -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<!-- Dashboard Metrics -->
+<div class="dashboard-metrics">
+    <div class="metric" data-aos="fade-up">
+        <div class="metric-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <h2>Total Users</h2>
+        <p>{{ total_users }}</p>
+    </div>
+    <div class="metric" data-aos="fade-up" data-aos-delay="100">
+        <div class="metric-icon">
+            <i class="fas fa-box-open"></i>
+        </div>
+        <h2>Total Products</h2>
+        <p>{{ total_products }}</p>
+    </div>
+    <div class="metric" data-aos="fade-up" data-aos-delay="200">
+        <div class="metric-icon">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h2>Total Orders</h2>
+        <p>{{ total_orders }}</p>
+    </div>
+    <div class="metric" data-aos="fade-up" data-aos-delay="300">
+        <div class="metric-icon">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <h2>Total Sales</h2>
+        <p>${{ '%.2f' | format(total_sales) }}</p>
+    </div>
+</div>
+
+
+    <!-- Recent Orders -->
+    <div class="recent-orders" data-aos="fade-up">
+        <div class="section-header">
+            <h2>Recent Orders</h2>
+            <a href="{{ url_for('admin_user_orders') }}" class="btn">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td data-label="Order ID">#{{ order.order_id }}</td>
+                        <td data-label="User">{{ order.user.username }}</td>
+                        <td data-label="Total Amount">${{ '%.2f' | format(order.total_amount) }}</td>
+                        <td data-label="Status"><span class="status {{ order.order_status|lower }}">{{ order.order_status }}</span></td>
+                        <td data-label="Order Date">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td data-label="Action"><a href="" class="btn small">View</a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if recent_orders|length == 0 %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No recent orders.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+<!-- Products Section -->
+<div class="products-section" data-aos="fade-up" data-aos-delay="100">
+    <div class="section-header2">
+        <h2>Recent Products</h2>
+        <a href="{{ url_for('admin_products') }}" class="btn">View More</a>
+    </div>
+    <div class="table-responsive">
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Stock Quantity</th>
+                    <th>Price</th>
+                    <th>Date Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td data-label="Product ID">#{{ product.product_id }}</td>
+                    <td data-label="Name">{{ product.product_name }}</td>
+                    <td data-label="Stock Quantity">{{ product.stock_quantity }}</td>
+                    <td data-label="Price">${{ '%.2f' | format(product.price) }}</td>
+                    <td data-label="Date Created">{{ product.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center;">No products available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Sales Performance Chart -->
+    <div class="sales-chart" data-aos="fade-up" data-aos-delay="200">
+        <div class="section-header">
+            <h2>Sales Performance</h2>
+        </div>
+        <div class="chart-placeholder">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Feed -->
+   <!-- Recent User Activities Section -->
+<div class="activity-feed" data-aos="fade-up" data-aos-delay="300">
+    <div class="section-header">
+        <h2>Recent User Activities</h2>
+    </div>
+    <ul class="activity-list">
+        {% for activity in recent_activity %}
+        <li>
+            <div class="activity-icon"><i class="{{ activity.icon }}"></i></div>
+            <div class="activity-details">
+                <p>{{ activity.message }}</p>
+                <span class="activity-time">{{ activity.time.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+        </li>
+        {% else %}
+        <li>
+            <p>No recent user activities.</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock content %}
+
+{% block customjavascript %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        
+        // Dynamic data from Flask
+        const salesLabels = {{ sales_labels | tojson }};
+        const salesAmounts = {{ sales_amounts | tojson }};
+        
+        const data = {
+            labels: salesLabels,
+            datasets: [
+                {
+                    label: 'Total Sales',
+                    data: salesAmounts,
+                    backgroundColor: 'rgba(0, 51, 102, 0.5)',
+                    borderColor: 'rgba(0, 51, 102, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        };
+    
+        const options = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Sales Performance Over the Last 6 Months'
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Sales Amount ($)'
+                    },
+                    beginAtZero: true
+                }
+            }
+        };
+    
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: options
+        });
+    });
+    </script>
+    
+{% endblock customjavascript %}

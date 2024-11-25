@@ -1,0 +1,67 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>Admin Settings</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert alert-info mt-4">
+            {% for category, message in messages %}
+                <p class="mb-1">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('admin_settings') }}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Username -->
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" value="{{ admin.username }}" required>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ admin.email }}" required>
+        </div>
+
+        <!-- Theme Preference -->
+        <div class="form-group">
+            <label for="theme_preference">Theme Preference:</label>
+            <select id="theme_preference" name="theme_preference" class="form-control">
+                <option value="light" {% if admin.theme_preference == 'light' %}selected{% endif %}>Light</option>
+                <option value="dark" {% if admin.theme_preference == 'dark' %}selected{% endif %}>Dark</option>
+            </select>
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="form-group">
+            <label for="profile_pic">Profile Picture:</label>
+            <input type="file" id="profile_pic" name="profile_pic" class="form-control-file">
+            {% if admin.profile_pic %}
+            <img src="{{ url_for('static', filename=admin.profile_pic) }}" alt="Profile Picture" class="profile-pic-preview">
+            {% endif %}
+        </div>
+
+        <!-- Password Change -->
+        <h2>Change Password</h2>
+        <div class="form-group">
+            <label for="current_password">Current Password:</label>
+            <input type="password" id="current_password" name="current_password" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="new_password">New Password:</label>
+            <input type="password" id="new_password" name="new_password" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm New Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary">Update Settings</button>
+    </form>
+</div>
+{% endblock content %}

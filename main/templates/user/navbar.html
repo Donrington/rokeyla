@@ -1,0 +1,94 @@
+
+ <!-- Navbar -->
+ <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img id="navbar-logo" src="../../static/RokeylaFiles/Logos/RokeylaLogoIconWhite.png" alt="" style="width:40px">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <!-- Home Nav Item -->
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{url_for('index')}}">Home</a>
+                </li>
+                <!-- Shop Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        Shop
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{url_for('men')}}">Men</a></li>
+                        <li><a class="dropdown-item" href="{{url_for('women')}}">Women</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('accessories') }}">Accessories</a></li>
+                    </ul>
+                </li>
+                <!-- About Nav Item -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('about')}}">About</a>
+                </li>
+                <!-- Contact Nav Item -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('contact')}}">Contact</a>
+                </li>
+
+                {% if session.get('logged_in') %}
+                <!-- User Profile Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user"></i> {{ session.get('username') }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <!-- Login and Sign Up Nav Items -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+            
+            {% endif %}
+                <!-- Cart Icon -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('cart') }}">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if cart_item_count > 0 %}
+                        <span class="cart-badge">{{ cart_item_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+              
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Cart Sidebar (Place outside of the navbar) -->
+<div id="cartSidebar" class="cart-sidebar">
+    <div class="cart-header">
+        <h4>Your Cart</h4>
+        <button id="closeCart" class="close-cart">&times;</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer">
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cartTotal">$0.00</span>
+        </div>
+        <div class="cart-actions">
+            <button id="viewCart" class="cart-btn">View Cart</button>
+            <button id="checkout" class="cart-btn">Checkout</button>
+        </div>
+    </div>
+</div>
+<div id="cartOverlay" class="cart-overlay"></div>

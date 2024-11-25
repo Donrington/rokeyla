@@ -1,0 +1,146 @@
+{% extends 'user/homelayout.html' %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+<!-- Checkout Section -->
+<div class="checkout-section py-5 mt-5">
+    <div class="container">
+        <h2 class="text-center mb-5 section-title">Checkout</h2>
+        <form action="{{ url_for('checkout') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row">
+                <div class="col-lg-7">
+                    <!-- Billing Details Form -->
+                    <div class="billing-details">
+                        <h4 class="mb-4">Billing Details</h4>
+                        <!-- Display Flash Messages -->
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                          <ul class="flashes">
+                            {% for message in messages %}
+                              <li>{{ message }}</li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      {% endwith %}
+                        <!-- Personal Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="firstName" name="first_name" value="{{ billing_details.first_name }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lastName" name="last_name" value="{{ billing_details.last_name }}" required>
+                            </div>
+                        </div>
+                        <!-- Contact Information -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ billing_details.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ billing_details.phone }}" required>
+                        </div>
+                        <!-- Address Information -->
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country / Region <span class="text-danger">*</span></label>
+                            <select class="form-select" id="country" name="country" required>
+                                <option value="">Select Country</option>
+                                {% for country in countries %}
+                                    <option value="{{ country.iso2 }}" {% if billing_details.country == country.iso2 %}selected{% endif %}>
+                                        {{ country.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Street Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ billing_details.address }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ billing_details.city }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State / Province <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="state" name="state" value="{{ billing_details.state }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postal_code" class="form-label">Postal Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ billing_details.postal_code }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h4 class="mb-4">Your Order</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Product</th>
+                                    <th scope="col" class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>{{ item.product.product_name }} × {{ item.quantity }}</td>
+                                    <td class="text-end">${{ "%.2f"|format(item.product.price * item.quantity) }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>Subtotal</td>
+                                    <td class="text-end">${{ "%.2f"|format(cart_subtotal) }}</td>
+                                </tr>
+                                {% if discount > 0 %}
+                                <tr>
+                                    <td>Discount ({{ coupon_code }})</td>
+                                    <td class="text-end">- ${{ "%.2f"|format(discount) }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-end"><strong>${{ "%.2f"|format(cart_total) }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Payment Methods -->
+                        <div class="payment-methods">
+                            <h5 class="mb-3">Payment Methods</h5>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="Paystack" required>
+                                <label class="form-check-label" for="paystack">
+                                    Paystack <img src="{{ url_for('static', filename='images/payment/Paystack.png') }}" alt="Paystack Logo" class="img-fluid ms-2" style="height: 40px;">
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="PayPal">
+                                <label class="form-check-label" for="paypal">
+                                    PayPal <img src="{{ url_for('static', filename='images/payment/paypal.webp') }}" alt="PayPal Logo" class="img-fluid ms-2" style="height: 40px;">
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="Bank Transfer">
+                                <label class="form-check-label" for="bank_transfer">
+                                    Bank Transfer
+                                </label>
+                            </div>
+                            <!-- Card Logos -->
+                            <div class="payment-logo">
+                                <img src="{{ url_for('static', filename='images/payment/paystack-ii.webp') }}" alt="Mastercard Logo" class="img-fluid me-2" style="height: 60px;">
+                                <!-- <img src="{{ url_for('static', filename='images/visa.png') }}" alt="Visa Logo" class="img-fluid me-2" style="height: 40px;"> -->
+                            </div>
+                            <button type="submit" class="custom-btn custom-btn-type2 w-100 mt-4">Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+{% endblock content %}
