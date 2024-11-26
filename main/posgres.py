@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
 import psycopg2
-import stripe
 from os import getenv
 
 # user = getenv('AMANIGO_USER')
