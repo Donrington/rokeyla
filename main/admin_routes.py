@@ -291,6 +291,7 @@ def seed_categories():
     # Categories for Men
     men_subcategories = [
         {'category_name': 'Shoes', 'description': 'Men\'s Shoes'},
+         {'category_name': 'Sandals', 'description': 'Men\'s Sandals'},
         {'category_name': 'Shirts', 'description': 'Men\'s Shirts'},
         {'category_name': 'T-Shirts', 'description': 'Men\'s T-Shirts'},
         {'category_name': 'Sweaters', 'description': 'Men\'s Sweaters'},
