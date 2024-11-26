@@ -346,7 +346,6 @@ def seed_categories():
     db.session.commit()
     print('Categories seeded successfully.')
 
-
 @app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
 @admin_login_required
 def edit_product(product_id):
@@ -365,11 +364,11 @@ def edit_product(product_id):
     recent_notifications = Notification.query.filter_by(admin_id=admin.admin_id).order_by(Notification.created_at.desc()).limit(10).all()
 
     if request.method == 'POST':
-        # Retrieve form data
         try:
+            # Retrieve and validate data
             is_featured = True if request.form.get('is_featured') == 'on' else False
             product_name = request.form.get('product_name')
-            description = request.form.get('description')  # Allow HTML content
+            description = request.form.get('description')
             price = request.form.get('price')
             stock_quantity = request.form.get('stock_quantity')
             sizes = request.form.getlist('sizes')
@@ -377,32 +376,20 @@ def edit_product(product_id):
             category_id = request.form.get('category_id')
             images = request.files.getlist('images')
 
-            # Validation
             if not product_name:
                 errors['product_name'] = 'Product name is required.'
-            if not price:
-                errors['price'] = 'Price is required.'
+            if not price or not stock_quantity:
+                errors['price'] = 'Price and stock quantity are required.'
             else:
                 try:
                     price = float(price)
-                except ValueError:
-                    errors['price'] = 'Price must be a number.'
-            if not stock_quantity:
-                errors['stock_quantity'] = 'Stock quantity is required.'
-            else:
-                try:
                     stock_quantity = int(stock_quantity)
                 except ValueError:
-                    errors['stock_quantity'] = 'Stock quantity must be an integer.'
-            if not category_id:
-                errors['category_id'] = 'Category is required.'
-            else:
-                category = Category.query.get(category_id)
-                if not category:
-                    errors['category_id'] = 'Selected category does not exist.'
+                    errors['price'] = 'Invalid price or stock quantity.'
 
-            # Re-render the form with errors
             if errors:
+                print(errors)  # Debug errors
+                flash('Please correct the errors below.', 'danger')
                 return render_template(
                     'admin/edit_product.html',
                     product=product,
@@ -425,31 +412,23 @@ def edit_product(product_id):
             product.category_id = category_id
             product.is_featured = is_featured
 
-            # Handle image uploads
+            # Handle images
             product_folder = app.config['PRODUCT_UPLOADER']
-            if not os.path.exists(product_folder):
-                os.makedirs(product_folder)
-
             if images and images[0].filename != '':
-                # Remove old images
                 ProductImage.query.filter_by(product_id=product.product_id).delete()
-
-                # Add new images
                 for image_file in images:
                     filename = secure_filename(image_file.filename)
-                    image_save_path = os.path.join(product_folder, filename)
-                    image_file.save(image_save_path)
-                    image_url = os.path.join('products', filename).replace('\\', '/')
-                    product_image = ProductImage(product_id=product.product_id, image_url=image_url)
+                    image_file.save(os.path.join(product_folder, filename))
+                    product_image = ProductImage(product_id=product.product_id, image_url=f'products/{filename}')
                     db.session.add(product_image)
 
             db.session.commit()
             flash('Product updated successfully.', 'success')
-            return redirect(url_for('admin_products'))  # Redirect to the products page
+            return redirect(url_for('admin_products'))
 
         except Exception as e:
             db.session.rollback()
-            print(f"Error updating product: {e}")  # Log error for debugging
+            print(f"Error updating product: {e}")
             flash('An error occurred while updating the product.', 'danger')
 
     return render_template(

@@ -29,7 +29,7 @@
         <!-- Description Field -->
         <div class="form-group">
             <label for="description">Description (HTML allowed):</label>
-            <textarea name="description" id="description" class="form-control" rows="6" placeholder="Enter product description">{{ request.form.description or product.description }}</textarea>
+            <textarea name="description" id="description" class="form-control" rows="6" placeholder="Enter product description">{{ request.form.description or product.description | safe }}</textarea>
             <small class="form-text text-muted">You can use HTML tags like &lt;br&gt;, &lt;p&gt;, &lt;h1&gt;, etc.</small>
         </div>
 
