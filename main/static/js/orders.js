@@ -20,22 +20,19 @@ toggleSwitch.addEventListener('change', () => {
 
 // Orders Page Functionality
 
-
-
 (function () {
     const ordersSearchInput = document.getElementById('ordersSearch');
     const ordersTableBody = document.getElementById('ordersTableBody');
 
-    // Search Orders
     ordersSearchInput.addEventListener('keyup', function () {
         const searchTerm = this.value.toLowerCase();
         const orders = ordersTableBody.getElementsByTagName('tr');
 
         Array.from(orders).forEach(function (order) {
-            const orderId = order.querySelector('[data-label="Products"]').textContent.toLowerCase();
-            const date = order.querySelector('[data-label="Date"]').textContent.toLowerCase();
-            const status = order.querySelector('[data-label="Status"]').textContent.toLowerCase();
-            const total = order.querySelector('[data-label="Total"]').textContent.toLowerCase();
+            const orderId = order.getElementsByTagName('td')[0].textContent.toLowerCase();
+            const date = order.getElementsByTagName('td')[1].textContent.toLowerCase();
+            const status = order.getElementsByTagName('td')[2].textContent.toLowerCase();
+            const total = order.getElementsByTagName('td')[3].textContent.toLowerCase();
 
             if (
                 orderId.includes(searchTerm) ||
@@ -68,7 +65,7 @@ navLinks.forEach(link => {
     });
 });
 
-  
+    // Filter Orders
     // Custom Dropdown Functionality
     const ordersFilterButton = document.getElementById('ordersFilterButton');
     const ordersDropdownMenu = document.getElementById('ordersDropdownMenu');
@@ -106,13 +103,14 @@ navLinks.forEach(link => {
         });
     });
 
+    // Filter Orders Function
     function filterOrders(filterValue) {
         const orders = ordersTableBody.getElementsByTagName('tr');
 
         Array.from(orders).forEach(function (order) {
-            const status = order.querySelector('[data-label="Status"] .orders-status').textContent.toLowerCase();
+            const status = order.getElementsByTagName('td')[2].textContent.toLowerCase();
 
-            if (filterValue === 'all' || status === filterValue.toLowerCase()) {
+            if (filterValue === 'all' || status.includes(filterValue)) {
                 order.style.display = '';
             } else {
                 order.style.display = 'none';

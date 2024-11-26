@@ -71,3 +71,23 @@ document.addEventListener('keydown', function (event) {
 // Wishlist Page Functionality
 
 // Event Listeners for Wishlist Buttons
+document.addEventListener('DOMContentLoaded', function () {
+    const addToCartButtons = document.querySelectorAll('.wishlist-btn.add-to-cart');
+    const removeItemButtons = document.querySelectorAll('.wishlist-btn.remove-item');
+
+    addToCartButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            // Logic to add the item to the cart
+            alert('Item added to cart!');
+        });
+    });
+
+    removeItemButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            // Logic to remove the item from the wishlist
+            const wishlistItem = this.closest('.wishlist-item');
+            wishlistItem.remove();
+            alert('Item removed from wishlist!');
+        });
+    });
+});

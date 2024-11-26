@@ -1826,7 +1826,6 @@ def payment_success():
         user = User.query.get_or_404(user_id)
         cart = user.cart
 
-        # Create order and clear cart
         try:
             new_order = Order(
                 user_id=user_id,
