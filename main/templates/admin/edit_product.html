@@ -6,7 +6,15 @@
 
     <form action="{{ url_for('edit_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
         <!-- Product Name Field -->
         <div class="form-group">
             <label for="product_name">Product Name:</label>
@@ -20,8 +28,9 @@
 
         <!-- Description Field -->
         <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea name="description" id="description" class="form-control" rows="6">{{ request.form.description or product.description }}</textarea>
+            <label for="description">Description (HTML allowed):</label>
+            <textarea name="description" id="description" class="form-control" rows="6" placeholder="Enter product description">{{ request.form.description or product.description }}</textarea>
+            <small class="form-text text-muted">You can use HTML tags like &lt;br&gt;, &lt;p&gt;, &lt;h1&gt;, etc.</small>
         </div>
 
         <!-- Price and Stock Fields -->

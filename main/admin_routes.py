@@ -347,7 +347,6 @@ def seed_categories():
     print('Categories seeded successfully.')
 
 
-
 @app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
 @admin_login_required
 def edit_product(product_id):
@@ -367,64 +366,65 @@ def edit_product(product_id):
 
     if request.method == 'POST':
         # Retrieve form data
-        is_featured = True if request.form.get('is_featured') == 'on' else False
-        product_name = request.form.get('product_name')
-        description = request.form.get('description')
-        price = request.form.get('price')
-        stock_quantity = request.form.get('stock_quantity')
-        sizes = request.form.getlist('sizes')
-        colors = request.form.getlist('colors')
-        category_id = request.form.get('category_id')
-        images = request.files.getlist('images')
-
-        # Validation
-        if not product_name:
-            errors['product_name'] = 'Product name is required.'
-        if not price:
-            errors['price'] = 'Price is required.'
-        else:
-            try:
-                price = float(price)
-            except ValueError:
-                errors['price'] = 'Price must be a number.'
-        if not stock_quantity:
-            errors['stock_quantity'] = 'Stock quantity is required.'
-        else:
-            try:
-                stock_quantity = int(stock_quantity)
-            except ValueError:
-                errors['stock_quantity'] = 'Stock quantity must be an integer.'
-        if not category_id:
-            errors['category_id'] = 'Category is required.'
-        else:
-            category = Category.query.get(category_id)
-            if not category:
-                errors['category_id'] = 'Selected category does not exist.'
-
-        if errors:
-            return render_template(
-                'admin/edit_product.html',
-                product=product,
-                categories=categories,
-                errors=errors,
-                request=request,
-                unread_notifications=unread_notifications,
-                unread_notifications_count=unread_notifications_count,
-                recent_notifications=recent_notifications,
-                admin=admin,
-            )
-
-        # Update product details
-        product.product_name = product_name
-        product.description = description
-        product.price = price
-        product.stock_quantity = stock_quantity
-        product.sizes = ','.join(sizes)
-        product.colors = ','.join(colors)
-        product.category_id = category_id
-        product.is_featured = is_featured
-
         try:
+            is_featured = True if request.form.get('is_featured') == 'on' else False
+            product_name = request.form.get('product_name')
+            description = request.form.get('description')  # Allow HTML content
+            price = request.form.get('price')
+            stock_quantity = request.form.get('stock_quantity')
+            sizes = request.form.getlist('sizes')
+            colors = request.form.getlist('colors')
+            category_id = request.form.get('category_id')
+            images = request.files.getlist('images')
+
+            # Validation
+            if not product_name:
+                errors['product_name'] = 'Product name is required.'
+            if not price:
+                errors['price'] = 'Price is required.'
+            else:
+                try:
+                    price = float(price)
+                except ValueError:
+                    errors['price'] = 'Price must be a number.'
+            if not stock_quantity:
+                errors['stock_quantity'] = 'Stock quantity is required.'
+            else:
+                try:
+                    stock_quantity = int(stock_quantity)
+                except ValueError:
+                    errors['stock_quantity'] = 'Stock quantity must be an integer.'
+            if not category_id:
+                errors['category_id'] = 'Category is required.'
+            else:
+                category = Category.query.get(category_id)
+                if not category:
+                    errors['category_id'] = 'Selected category does not exist.'
+
+            # Re-render the form with errors
+            if errors:
+                return render_template(
+                    'admin/edit_product.html',
+                    product=product,
+                    categories=categories,
+                    errors=errors,
+                    request=request,
+                    unread_notifications=unread_notifications,
+                    unread_notifications_count=unread_notifications_count,
+                    recent_notifications=recent_notifications,
+                    admin=admin,
+                )
+
+            # Update product details
+            product.product_name = product_name
+            product.description = description
+            product.price = price
+            product.stock_quantity = stock_quantity
+            product.sizes = ','.join(sizes)
+            product.colors = ','.join(colors)
+            product.category_id = category_id
+            product.is_featured = is_featured
+
             # Handle image uploads
             product_folder = app.config['PRODUCT_UPLOADER']
             if not os.path.exists(product_folder):
@@ -445,23 +445,12 @@ def edit_product(product_id):
 
             db.session.commit()
             flash('Product updated successfully.', 'success')
-            return redirect(url_for('admin_products'))
+            return redirect(url_for('admin_products'))  # Redirect to the products page
 
         except Exception as e:
             db.session.rollback()
+            print(f"Error updating product: {e}")  # Log error for debugging
             flash('An error occurred while updating the product.', 'danger')
-            print(f"Error: {e}")
-            return render_template(
-                'admin/edit_product.html',
-                product=product,
-                categories=categories,
-                errors=errors,
-                request=request,
-                unread_notifications=unread_notifications,
-                unread_notifications_count=unread_notifications_count,
-                recent_notifications=recent_notifications,
-                admin=admin,
-            )
 
     return render_template(
         'admin/edit_product.html',
