@@ -428,7 +428,30 @@ Section Title */
     color: #800000;
 }
 
+.payment-logo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center-align items on smaller screens */
+    gap: 10px; /* Add spacing between logos */
+}
 
+.payment-logo img {
+    max-width: 100%; /* Ensure logos do not exceed container width */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 60px; /* Prevent images from becoming too tall */
+    object-fit: contain; /* Ensure images fit nicely within their container */
+}
+
+@media (max-width: 576px) { /* Small screens */
+    .payment-logo {
+        flex-direction: row;
+        justify-content: space-around; /* Space logos evenly on small screens */
+    }
+
+    .payment-logo img {
+        max-height: 40px; /* Reduce height for smaller devices */
+    }
+}
 
 
 
