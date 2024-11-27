@@ -68,12 +68,12 @@
         <div class="form-group">
             <label>Sizes:</label>
             <div class="d-flex flex-wrap gap-3">
-                {% set size_options = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13'] %}
+                {% set size_options = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '5','6','7','8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13', 13.5', '14','14.5','15','15.5','16','16.5','17','17.5','18','19','20'] %}
                 {% for size in size_options %}
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="sizes" value="{{ size }}" id="size{{ size }}"
                         {% if size in request.form.getlist('sizes') %}checked{% endif %}>
-                        <label class="form-check-label" for="size{{ size }}">{{ size }}</label>
+                        <label class="form-check-label" for="size{{ size }}">US {{ size }}</label>
                     </div>
                 {% endfor %}
             </div>
@@ -107,7 +107,7 @@
     <label for="category_id">Category:</label>
     <select name="category_id" id="category_id"
             class="form-control {% if errors.get('category_id') %}is-invalid{% endif %}" required>
-        <option value="" disabled {% if not request.form.category_id %}selected{% endif %}>Select category</option>
+        <option value="{{ parent_category.category_name }}" disabled {% if not request.form.category_id %}selected{% endif %}>Select category</option>
         {% for parent_category in categories %}
             <optgroup label="{{ parent_category.category_name }}">
                 {% for category in parent_category.subcategories %}
@@ -148,7 +148,7 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Create Product</button>
+        <button type="submit" class="btn btn-primary">Edit Product</button>
 
         <!-- Display Flashed Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}

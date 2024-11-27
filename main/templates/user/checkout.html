@@ -110,31 +110,41 @@
                         <!-- Payment Methods -->
                         <div class="payment-methods">
                             <h5 class="mb-3">Payment Methods</h5>
+                        
+                            <!-- Paystack Radio Button -->
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="payment_method" id="paystack" value="Paystack" required>
                                 <label class="form-check-label" for="paystack">
                                     Paystack <img src="{{ url_for('static', filename='images/payment/Paystack.png') }}" alt="Paystack Logo" class="img-fluid ms-2" style="height: 40px;">
                                 </label>
                             </div>
+                        
+                            <!-- Stripe Radio Button -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="Stripe"  required>
+                                <label class="form-check-label" for="stripe">
+                                    Stripe <img src="{{ url_for('static', filename='images/payment/stripe.png') }}" alt="Stripe Logo" class="img-fluid ms-2" style="height: 40px;">
+                                </label>
+                            </div>
+                        
+                            <!-- Other Payment Methods -->
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="PayPal">
                                 <label class="form-check-label" for="paypal">
                                     PayPal <img src="{{ url_for('static', filename='images/payment/paypal.webp') }}" alt="PayPal Logo" class="img-fluid ms-2" style="height: 40px;">
                                 </label>
                             </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="Bank Transfer">
-                                <label class="form-check-label" for="bank_transfer">
-                                    Bank Transfer
-                                </label>
-                            </div>
+                        
                             <!-- Card Logos -->
                             <div class="payment-logo">
-                                <img src="{{ url_for('static', filename='images/payment/paystack-ii.webp') }}" alt="Mastercard Logo" class="img-fluid me-2" style="height: 60px;">
-                                <!-- <img src="{{ url_for('static', filename='images/visa.png') }}" alt="Visa Logo" class="img-fluid me-2" style="height: 40px;"> -->
+                                <img src="{{ url_for('static', filename='images/payment/paystack-ii.webp') }}" alt="Paystack Logo" class="img-fluid me-2" style="height: 60px;">
+                                <img src="{{ url_for('static', filename='images/payment/stripe-logo.webp') }}" alt="Stripe Logo" class="img-fluid me-2" style="height: 60px;">
                             </div>
-                            <button type="submit" class="custom-btn custom-btn-type2 w-100 mt-4">Place Order</button>
+                        
+                            <!-- Submit Button -->
+                            <button type="button" id="paymentButton" class="custom-btn custom-btn-type2 w-100 mt-4">Place Order</button>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -143,4 +153,25 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+
+<script>
+    document.getElementById('paymentButton').addEventListener('click', function () {
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!selectedMethod) {
+            alert('Please select a payment method.');
+            return;
+        }
+
+        // Redirect based on selected payment method
+        const paymentMethod = selectedMethod.value;
+        if (paymentMethod === 'Paystack') {
+            window.location.href = "{{ url_for('initiate_paystack_payment') }}";
+        } else if (paymentMethod === 'Stripe') {
+            window.location.href = "{{ url_for('initiate_stripe_payment') }}";
+        } else {
+            alert('Unsupported payment method selected.');
+        }
+    });
+</script>
+
 {% endblock content %}

@@ -1761,20 +1761,19 @@ def inject_footer_categories():
     categories = Category.query.all()
     footer_categories = random.sample(categories, min(len(categories), 4))
     return dict(footer_categories=footer_categories)
-
-
 @app.route('/create-checkout-session', methods=['POST'])
 @login_required
 def create_checkout_session():
+    # Get user and cart
     user_id = session.get('user_id')
     user = User.query.get_or_404(user_id)
     cart = user.cart
-    
+
     if not cart or not cart.cart_items:
-        flash('Your cart is empty.')
+        flash('Your cart is empty.', 'warning')
         return redirect(url_for('cart'))
 
-    # Calculate the total amount
+    # Calculate line items for Stripe
     cart_items = cart.cart_items
     line_items = []
     for item in cart_items:
@@ -1790,17 +1789,16 @@ def create_checkout_session():
             'quantity': item.quantity,
         })
 
-    # Apply discount if a coupon is used
+    # Handle coupon if applicable
     coupon_code = session.get('coupon_code')
+    discount = 0
     if coupon_code:
         coupon = Coupon.query.filter_by(code=coupon_code).first()
         if coupon and coupon.is_valid():
-            discount = {
-                'coupon': {
-                    'amount_off': int(coupon.discount_value * 100) if coupon.discount_type == 'fixed' else None,
-                    'percent_off': coupon.discount_value if coupon.discount_type == 'percentage' else None,
-                }
-            }
+            if coupon.discount_type == 'percentage':
+                discount = (coupon.discount_value / 100) * sum(item.product.price * item.quantity for item in cart_items)
+            elif coupon.discount_type == 'fixed':
+                discount = coupon.discount_value
 
     try:
         # Create Stripe Checkout Session
@@ -1813,34 +1811,38 @@ def create_checkout_session():
         )
         return redirect(stripe_session.url, code=303)
     except Exception as e:
-        flash('An error occurred while processing your payment.', 'danger')
+        flash('An error occurred while creating the payment session. Please try again.', 'danger')
         print(f"Stripe error: {e}")
         return redirect(url_for('checkout'))
 
 
 @app.route('/payment-success', methods=['GET'])
+@login_required
 def payment_success():
     session_id = request.args.get('session_id')
     if not session_id:
         flash('Invalid payment session.', 'danger')
         return redirect(url_for('checkout'))
 
-    # Fetch the checkout session
-    session = stripe.checkout.Session.retrieve(session_id)
-    if session.payment_status == 'paid':
+    # Retrieve Stripe session
+    stripe_session = stripe.checkout.Session.retrieve(session_id)
+
+    if stripe_session.payment_status == 'paid':
         user_id = session.get('user_id')
         user = User.query.get_or_404(user_id)
         cart = user.cart
 
         try:
+            # Create new order
             new_order = Order(
                 user_id=user_id,
-                total_amount=session.amount_total / 100,  # Convert cents to dollars
+                total_amount=stripe_session.amount_total / 100,  # Convert cents to dollars
                 payment_method='Stripe',
                 order_status='Paid',
             )
             db.session.add(new_order)
 
+            # Add order items and adjust stock
             for item in cart.cart_items:
                 order_item = OrderItem(
                     order_id=new_order.order_id,
@@ -1851,7 +1853,7 @@ def payment_success():
                 item.product.stock_quantity -= item.quantity
                 db.session.add(order_item)
 
-            # Clear cart and remove coupon
+            # Clear cart and coupon
             CartItem.query.filter_by(cart_id=cart.cart_id).delete()
             session.pop('coupon_code', None)
 
@@ -1862,14 +1864,131 @@ def payment_success():
             db.session.rollback()
             print(f"Error processing order: {e}")
             flash('An error occurred while processing your order.', 'danger')
-            return redirect(url_for('checkout'))
+            return redirect(url_for('cart'))
     else:
         flash('Payment not successful.', 'danger')
-        return redirect(url_for('checkout'))
-
+        return redirect(url_for('cart'))
 
 
 @app.route('/payment-cancel', methods=['GET'])
+@login_required
 def payment_cancel():
-    flash('Payment canceled.', 'warning')
+    flash('Payment was canceled. Your cart is still available.', 'warning')
     return redirect(url_for('cart'))
+
+
+
+# Paystack Initialization
+PAYSTACK_SECRET_KEY = app.config['PAYSTACK_SECRET_KEY']
+PAYSTACK_CALLBACK_URL = app.config['PAYSTACK_CALLBACK_URL']
+
+@app.route('/checkout/paystack', methods=['POST'])
+@login_required
+def initiate_paystack_payment():
+    """Route to initiate payment with Paystack"""
+    user_id = session.get('user_id')
+    user = User.query.get_or_404(user_id)
+    cart = user.cart
+
+    if not cart or not cart.cart_items:
+        flash("Your cart is empty. Please add items to your cart.", "danger")
+        return redirect(url_for('cart'))
+
+    # Calculate total amount in kobo (Paystack uses kobo for currency)
+    total_amount = sum(item.product.price * item.quantity for item in cart.cart_items) * 100
+
+    # Create a payment session on Paystack
+    headers = {
+        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "email": user.email,
+        "amount": int(total_amount),
+        "callback_url": PAYSTACK_CALLBACK_URL,
+    }
+
+    try:
+        response = requests.post("https://api.paystack.co/transaction/initialize", json=data, headers=headers)
+        result = response.json()
+
+        if result.get("status"):
+            authorization_url = result["data"]["authorization_url"]
+
+            # Save payment reference for verification later
+            session["paystack_reference"] = result["data"]["reference"]
+            return redirect(authorization_url)
+
+        flash("Unable to initiate payment. Please try again.", "danger")
+        return redirect(url_for('checkout'))
+    except Exception as e:
+        flash(f"Payment initiation failed: {str(e)}", "danger")
+        return redirect(url_for('checkout'))
+
+
+@app.route('/payment/verify', methods=['GET'])
+def verify_paystack_payment():
+    """Route to verify Paystack payment"""
+    reference = request.args.get("reference")
+    if not reference:
+        flash("Payment reference is missing.", "danger")
+        return redirect(url_for('checkout'))
+
+    headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"}
+
+    try:
+        response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
+        result = response.json()
+
+        if result.get("status") and result["data"]["status"] == "success":
+            # Payment was successful
+            flash("Payment was successful!", "success")
+
+            # Create an order in the database
+            user_id = session.get('user_id')
+            user = User.query.get_or_404(user_id)
+            cart = user.cart
+
+            # Save order details
+            new_order = Order(
+                user_id=user_id,
+                total_amount=result["data"]["amount"] / 100,
+                payment_status="paid",
+                reference=reference,
+            )
+            db.session.add(new_order)
+
+            # Save order items
+            for item in cart.cart_items:
+                order_item = OrderItem(
+                    order_id=new_order.order_id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.product.price,
+                )
+                db.session.add(order_item)
+
+            # Clear the cart
+            cart.cart_items = []
+            db.session.commit()
+
+            return redirect(url_for('order_confirmation', order_id=new_order.order_id))
+        else:
+            flash("Payment verification failed. Please try again.", "danger")
+            return redirect(url_for('checkout'))
+    except Exception as e:
+        flash(f"Payment verification failed: {str(e)}", "danger")
+        return redirect(url_for('checkout'))
+
+
+@app.route('/checkout/submit', methods=['POST'])
+@login_required
+def submit_checkout():
+    payment_method = request.form.get('payment_method')
+    if payment_method == 'Paystack':
+        return redirect(url_for('initiate_paystack_payment'))
+    elif payment_method == 'Stripe':
+        return redirect(url_for('initiate_stripe_payment'))
+    else:
+        flash('Unsupported payment method selected.', 'danger')
+        return redirect(url_for('checkout'))
