@@ -128,3 +128,42 @@ body {
     color: #ff5e5e;
     margin-bottom: 20px;
 }
+
+
+/* Existing CSS */
+
+/* ... your existing styles ... */
+
+/* New styles for responsive table */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling on touch devices */
+}
+
+.table-responsive .table {
+    min-width: 600px; /* Adjust the min-width as needed based on your table content */
+}
+
+/* Adjust table styling on small screens */
+@media (max-width: 768px) {
+    .order-items .table th, .order-items .table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .order-items h3 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .order-items .table th, .order-items .table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .order-items h3 {
+        font-size: 18px;
+    }
+}
