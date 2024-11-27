@@ -447,9 +447,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Configuration for file uploads
-USER_PROFILE_PATH = os.path.join('static', 'uploads')
-app.config['USER_PROFILE_PATH'] = USER_PROFILE_PATH
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
 @app.route('/profile/', methods=['GET', 'POST'])
 @login_required
@@ -459,6 +456,8 @@ def profile():
     recent_activity = get_recent_activity(user_id)
     unread_message_count = Message.query.filter_by(receiver_id=user_id, is_read=False).count()
 
+    # List of countries
+    
     # Full list of countries
     countries = [
         {'name': 'Afghanistan', 'iso2': 'AF'},
@@ -658,6 +657,7 @@ def profile():
     # Sort countries by name
     countries.sort(key=lambda x: x['name'])
 
+
     if request.method == 'POST':
         # Get form data
         user.first_name = request.form.get('first_name')
@@ -666,7 +666,7 @@ def profile():
         user.phone = request.form.get('phone')
         user.address = request.form.get('address')
         user.city = request.form.get('city')
-        user.state = request.form.get('state')  # Updated to match the input field
+        user.state = request.form.get('state')
         user.country = request.form.get('country')
         user.postal_code = request.form.get('postal_code')
 
@@ -677,10 +677,14 @@ def profile():
                 filename = secure_filename(file.filename)
                 filename = f"profile_{user.user_id}_{filename}"
                 file_path = os.path.join(app.config['USER_PROFILE_PATH'], filename)
+           
+                # Ensure directory exists
                 os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+                # Save file to server
                 file.save(file_path)
 
-                # Construct the relative path with forward slashes
+                # Construct relative path for database
                 relative_path = f"uploads/{filename}"
                 user.profile_pic = relative_path
             elif file.filename != '':
@@ -696,7 +700,7 @@ def profile():
                                    unread_message_count=unread_message_count, recent_activity=recent_activity,
                                    pagename='Profile | Rokeyla')
 
-        # Update the database
+        # Update database
         try:
             db.session.commit()
             flash('Your profile has been updated.')
@@ -708,10 +712,12 @@ def profile():
                                    unread_message_count=unread_message_count, recent_activity=recent_activity,
                                    pagename='Profile | Rokeyla')
     else:
-        # Render profile template with current user data
+        # Render profile template
         return render_template('user/profile.html', user=user, countries=countries,
                                unread_message_count=unread_message_count, recent_activity=recent_activity,
                                pagename='Profile | Rokeyla')
+
+
 
 @app.route('/orders/')
 @login_required

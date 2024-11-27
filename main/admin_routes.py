@@ -92,6 +92,7 @@ def admin_dashboard():
     # Sales data for the last 6 months
 
     # Sales data for the last 6 months
+
     today = datetime.today()
     six_months_ago = today - timedelta(days=180)
 

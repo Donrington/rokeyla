@@ -66,7 +66,7 @@
             <p class="product-price" id="productPrice">${{ '%.2f'|format(product.price) }} & Free Shipping</p>
 
             <p class="product-description">
-                {{ product.description }}
+                {{ product.description | safe }}
             </p>
 
 
