@@ -44,7 +44,8 @@ MAIL_SERVER='smtp.gmail.com'
 MAIL_PORT=465
 MAIL_USERNAME='carryoby@gmail.com'
 MAIL_PASSWORD='pzvw jfdf swwa lmcw'
-MAIL_USE_SSL=True
+MAIL_USE_SSL=False
+MAIL_USE_TSL=True
 
 
 FACEBOOK_OAUTH_CLIENT_ID = "YOUR_FACEBOOK_CLIENT_ID"

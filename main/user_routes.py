@@ -5,6 +5,7 @@ import stripe
 from os.path import basename
 import random
 import requests
+from flask_mail import Message
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from functools import wraps
@@ -1960,6 +1961,12 @@ def submit_checkout():
 def order_confirmation(order_id):
     user_id = session.get('user_id')
     user = User.query.get_or_404(user_id)
+    form = NewsletterForm()
     order = Order.query.filter_by(order_id=order_id, user_id=user_id).first_or_404()
     order_items = OrderItem.query.filter_by(order_id=order_id).all()
-    return render_template('user/order_confirmation.html', order=order, order_items=order_items)
+    return render_template('user/order_confirmation.html', order=order, order_items=order_items, form=form)
+
+def nl2br(value):
+    return value.replace('\n', '<br>\n')
+
+app.jinja_env.filters['nl2br'] = nl2br

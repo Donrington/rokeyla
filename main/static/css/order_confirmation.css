@@ -21,7 +21,7 @@ body {
 
 .thank-you-section h1 {
     font-size: 48px;
-    color: #ff5e5e; /* Rokeyla theme primary color */
+    color: maroon; /* Rokeyla theme primary color */
     margin-bottom: 20px;
 }
 
@@ -92,8 +92,8 @@ body {
 .continue-shopping .btn {
     padding: 12px 40px;
     font-size: 18px;
-    background-color: #ff5e5e;
-    border-color: #ff5e5e;
+    background-color:maroon;
+    border-color: maroon;
     color: #fff;
     border-radius: 50px;
     text-transform: uppercase;
