@@ -1,0 +1,130 @@
+/* order_confirmation.css */
+
+body {
+    font-family: 'Raleway', sans-serif;
+    overflow-x: hidden;
+}
+.order-confirmation-page {
+    background-color: #f9f9f9; /* Light shade of white */
+    padding: 60px 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.thank-you-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.thank-you-section h1 {
+    font-size: 48px;
+    color: #ff5e5e; /* Rokeyla theme primary color */
+    margin-bottom: 20px;
+}
+
+.thank-you-section p {
+    font-size: 20px;
+    color: #555;
+}
+
+.order-details-section {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.order-details-section h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+}
+
+.order-summary, .order-items {
+    margin-bottom: 30px;
+}
+
+.order-summary h3, .order-items h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #ff5e5e;
+    border-bottom: 2px solid #ff5e5e;
+    display: inline-block;
+}
+
+.order-summary p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.order-summary p strong {
+    color: #333;
+}
+
+.order-items .table {
+    width: 100%;
+    margin-bottom: 0;
+    color: #555;
+}
+
+.order-items .table th, .order-items .table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+}
+
+.order-items .table thead th {
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.continue-shopping {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.continue-shopping .btn {
+    padding: 12px 40px;
+    font-size: 18px;
+    background-color: #ff5e5e;
+    border-color: #ff5e5e;
+    color: #fff;
+    border-radius: 50px;
+    text-transform: uppercase;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.continue-shopping .btn:hover {
+    background-color: #e14e4e;
+    border-color: #e14e4e;
+    color: #fff;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .thank-you-section h1 {
+        font-size: 36px;
+    }
+
+    .order-details-section h2 {
+        font-size: 28px;
+    }
+
+    .order-summary h3, .order-items h3 {
+        font-size: 22px;
+    }
+}
+
+
+
+.thank-you-section i {
+    font-size: 60px;
+    color: #ff5e5e;
+    margin-bottom: 20px;
+}

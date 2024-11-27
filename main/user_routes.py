@@ -1952,3 +1952,14 @@ def submit_checkout():
     else:
         flash('Unsupported payment method selected.', 'danger')
         return redirect(url_for('checkout'))
+
+
+
+@app.route('/order_confirmation/<int:order_id>')
+@login_required
+def order_confirmation(order_id):
+    user_id = session.get('user_id')
+    user = User.query.get_or_404(user_id)
+    order = Order.query.filter_by(order_id=order_id, user_id=user_id).first_or_404()
+    order_items = OrderItem.query.filter_by(order_id=order_id).all()
+    return render_template('user/order_confirmation.html', order=order, order_items=order_items)

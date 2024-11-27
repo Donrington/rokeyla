@@ -1,14 +1,53 @@
 {% extends 'user/homelayout.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1>Order Confirmation</h1>
-    <p>Thank you for your order!</p>
-    <h3>Order Details</h3>
-    <p><strong>Order ID:</strong> {{ order.order_id }}</p>
-    <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
-    <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
-    <p><strong>Status:</strong> {{ order.order_status }}</p>
-    <a href="{{ url_for('orders') }}" class="btn btn-primary">View Orders</a>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/order_confirmation.css') }}">
+
+<div class="order-confirmation-page">
+    <div class="container">
+        <div class="thank-you-section">
+            <i class="fas fa-check-circle"></i>
+            <h1>Thank You!</h1>
+            <p>Your order has been placed successfully.</p>
+        </div>
+        <div class="order-details-section">
+            <h2>Order Confirmation</h2>
+            <div class="order-summary">
+                <h3>Order Details</h3>
+                <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+                <p><strong>Total Amount:</strong> ${{ "%.2f"|format(order.total_amount) }}</p>
+                <p><strong>Shipping Address:</strong><br>{{ order.shipping_address|linebreaks }}</p>
+                <p><strong>Status:</strong> {{ order.order_status }}</p>
+            </div>
+            <div class="order-items">
+                <h3>Items Ordered</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                            <td>{{ item.product.product_name }}</td>
+                            <td>{{ item.size or 'N/A' }}</td>
+                            <td>{{ item.color or 'N/A' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="continue-shopping">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
