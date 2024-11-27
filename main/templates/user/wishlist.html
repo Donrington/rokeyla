@@ -131,8 +131,10 @@
                 <div class="wishlist-item-details">
                     <h3>{{ product.product_name }}</h3>
                     <p class="wishlist-item-price">${{ '%.2f' % product.price }}</p>
-                    <p class="wishlist-item-description">{{ product.description }}</p>
+                    <p class="wishlist-item-description">{{ product.description[:150] | safe }}{% if product.description|length > 150 %}...</p>
                     <div class="wishlist-item-actions">
+                        {% endif %}
+                   
                         <!-- Add to Cart -->
                         <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

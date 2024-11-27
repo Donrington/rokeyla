@@ -1867,6 +1867,7 @@ body.dark-theme .form-group select::placeholder {
 .wishlist-item-actions {
     display: flex;
     gap: 10px;
+    margin-top: 10px;
 }
 /* Updated Wishlist Buttons */
 
