@@ -4,6 +4,7 @@ import io
 import stripe
 from os.path import basename
 import random
+import requests
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from functools import wraps
@@ -1358,7 +1359,7 @@ def place_order():
         notification = Notification(
             admin_id=1,  # Adjust admin_id if necessary
             message=f"New order placed: Order #{new_order.order_id} by {user.username}",
-            link=url_for('admin_view_order', order_id=new_order.order_id),
+            link=url_for('admin_user_orders', order_id=new_order.order_id),
             icon='fas fa-shopping-cart',
             created_at=datetime.utcnow(),
             is_read=False
@@ -1383,12 +1384,14 @@ def place_order():
 
 from decimal import Decimal
 
+
 @app.route('/checkout/', methods=['GET', 'POST'])
 @login_required
 def checkout():
     user_id = session.get('user_id')
     user = User.query.get_or_404(user_id)
     form = NewsletterForm()
+
     # Fetch the user's cart
     cart = user.cart
     if not cart or not cart.cart_items:
@@ -1403,23 +1406,20 @@ def checkout():
 
     # Apply coupon if exists
     coupon_code = session.get('coupon_code')
-    discount = Decimal('0')  # Initialize as a Decimal using a string
+    discount = Decimal('0')
     if coupon_code:
         coupon = Coupon.query.filter_by(code=coupon_code).first()
         if coupon and coupon.is_valid():
             if coupon.discount_type == 'percentage':
-                # Convert discount_value to Decimal using string conversion
                 discount_value = Decimal(str(coupon.discount_value))
                 discount = (discount_value / Decimal('100')) * cart_subtotal
                 if coupon.max_discount:
-                    # Convert max_discount to Decimal using string conversion
                     max_discount = Decimal(str(coupon.max_discount))
                     discount = min(discount, max_discount)
             elif coupon.discount_type == 'fixed':
-                # Convert discount_value to Decimal using string conversion
                 discount = Decimal(str(coupon.discount_value))
-            cart_total -= discount  # Both cart_total and discount are Decimals
-            cart_total = max(cart_total, Decimal('0')) 
+            cart_total -= discount
+            cart_total = max(cart_total, Decimal('0'))
 
     if request.method == 'POST':
         # Get form data
@@ -1432,7 +1432,7 @@ def checkout():
         state = request.form.get('state')
         country = request.form.get('country')
         postal_code = request.form.get('postal_code')
-        payment_method = request.form.get('payment_method')
+        payment_method = request.form.get('payment_method')  # Get payment method from button
 
         # Validate required fields
         if not all([first_name, last_name, email, phone, address, city, state, country, postal_code, payment_method]):
@@ -1491,14 +1491,20 @@ def checkout():
             notification = Notification(
                 admin_id=1,  # Adjust admin_id if necessary
                 message=f'New order placed: Order #{new_order.order_id}',
-                link=url_for('admin_view_order', order_id=new_order.order_id),
+                link=url_for('admin_user_orders', order_id=new_order.order_id),
                 icon='fas fa-shopping-cart'
             )
             db.session.add(notification)
             db.session.commit()
 
-            flash('Order placed successfully!', 'success')
-            return redirect(url_for('order_confirmation', order_id=new_order.order_id))
+            # Redirect to the appropriate payment gateway
+            if payment_method == 'Paystack':
+                return redirect(url_for('initiate_paystack_payment', order_id=new_order.order_id))
+            elif payment_method == 'Stripe':
+                return redirect(url_for('create_checkout_session', order_id=new_order.order_id))
+            else:
+                flash('Unsupported payment method selected.', 'danger')
+                return redirect(url_for('checkout'))
 
         except Exception as e:
             db.session.rollback()
@@ -1728,10 +1734,9 @@ def checkout():
             billing_details=billing_details,
             coupon_code=coupon_code,
             countries=countries,
-            pagename='Checkout | Rokeyla', form=form
+            pagename='Checkout | Rokeyla',
+            form=form
         )
-
-
 
 
 @app.route('/subscribe', methods=['POST'])
@@ -1762,21 +1767,19 @@ def inject_footer_categories():
     footer_categories = random.sample(categories, min(len(categories), 4))
     return dict(footer_categories=footer_categories)
 @app.route('/create-checkout-session', methods=['POST'])
+
+@app.route('/create-checkout-session/<int:order_id>', methods=['GET', 'POST'])
 @login_required
-def create_checkout_session():
-    # Get user and cart
+def create_checkout_session(order_id):
+    """Route to create a Stripe checkout session"""
     user_id = session.get('user_id')
     user = User.query.get_or_404(user_id)
-    cart = user.cart
+    order = Order.query.get_or_404(order_id)
 
-    if not cart or not cart.cart_items:
-        flash('Your cart is empty.', 'warning')
-        return redirect(url_for('cart'))
-
-    # Calculate line items for Stripe
-    cart_items = cart.cart_items
+    # Prepare line items based on the order
+    order_items = OrderItem.query.filter_by(order_id=order_id).all()
     line_items = []
-    for item in cart_items:
+    for item in order_items:
         line_items.append({
             'price_data': {
                 'currency': 'usd',
@@ -1784,21 +1787,10 @@ def create_checkout_session():
                     'name': item.product.product_name,
                     'description': item.product.description,
                 },
-                'unit_amount': int(item.product.price * 100),  # Convert dollars to cents
+                'unit_amount': int(item.price * 100),  # Convert dollars to cents
             },
             'quantity': item.quantity,
         })
-
-    # Handle coupon if applicable
-    coupon_code = session.get('coupon_code')
-    discount = 0
-    if coupon_code:
-        coupon = Coupon.query.filter_by(code=coupon_code).first()
-        if coupon and coupon.is_valid():
-            if coupon.discount_type == 'percentage':
-                discount = (coupon.discount_value / 100) * sum(item.product.price * item.quantity for item in cart_items)
-            elif coupon.discount_type == 'fixed':
-                discount = coupon.discount_value
 
     try:
         # Create Stripe Checkout Session
@@ -1806,7 +1798,7 @@ def create_checkout_session():
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            success_url=url_for('payment_success', order_id=order_id, _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('payment_cancel', _external=True),
         )
         return redirect(stripe_session.url, code=303)
@@ -1816,9 +1808,10 @@ def create_checkout_session():
         return redirect(url_for('checkout'))
 
 
-@app.route('/payment-success', methods=['GET'])
+
+@app.route('/payment-success/<int:order_id>', methods=['GET'])
 @login_required
-def payment_success():
+def payment_success(order_id):
     session_id = request.args.get('session_id')
     if not session_id:
         flash('Invalid payment session.', 'danger')
@@ -1828,38 +1821,14 @@ def payment_success():
     stripe_session = stripe.checkout.Session.retrieve(session_id)
 
     if stripe_session.payment_status == 'paid':
-        user_id = session.get('user_id')
-        user = User.query.get_or_404(user_id)
-        cart = user.cart
-
         try:
-            # Create new order
-            new_order = Order(
-                user_id=user_id,
-                total_amount=stripe_session.amount_total / 100,  # Convert cents to dollars
-                payment_method='Stripe',
-                order_status='Paid',
-            )
-            db.session.add(new_order)
-
-            # Add order items and adjust stock
-            for item in cart.cart_items:
-                order_item = OrderItem(
-                    order_id=new_order.order_id,
-                    product_id=item.product_id,
-                    quantity=item.quantity,
-                    price=item.product.price,
-                )
-                item.product.stock_quantity -= item.quantity
-                db.session.add(order_item)
-
-            # Clear cart and coupon
-            CartItem.query.filter_by(cart_id=cart.cart_id).delete()
-            session.pop('coupon_code', None)
-
+            # Update order status to 'Paid'
+            order = Order.query.get_or_404(order_id)
+            order.order_status = 'Paid'
             db.session.commit()
+
             flash('Payment successful! Your order has been placed.', 'success')
-            return redirect(url_for('order_confirmation', order_id=new_order.order_id))
+            return redirect(url_for('order_confirmation', order_id=order_id))
         except Exception as e:
             db.session.rollback()
             print(f"Error processing order: {e}")
@@ -1868,6 +1837,7 @@ def payment_success():
     else:
         flash('Payment not successful.', 'danger')
         return redirect(url_for('cart'))
+
 
 
 @app.route('/payment-cancel', methods=['GET'])
@@ -1882,20 +1852,16 @@ def payment_cancel():
 PAYSTACK_SECRET_KEY = app.config['PAYSTACK_SECRET_KEY']
 PAYSTACK_CALLBACK_URL = app.config['PAYSTACK_CALLBACK_URL']
 
-@app.route('/checkout/paystack', methods=['POST'])
+@app.route('/checkout/paystack/<int:order_id>', methods=['GET'])
 @login_required
-def initiate_paystack_payment():
+def initiate_paystack_payment(order_id):
     """Route to initiate payment with Paystack"""
     user_id = session.get('user_id')
     user = User.query.get_or_404(user_id)
-    cart = user.cart
-
-    if not cart or not cart.cart_items:
-        flash("Your cart is empty. Please add items to your cart.", "danger")
-        return redirect(url_for('cart'))
+    order = Order.query.get_or_404(order_id)
 
     # Calculate total amount in kobo (Paystack uses kobo for currency)
-    total_amount = sum(item.product.price * item.quantity for item in cart.cart_items) * 100
+    total_amount = int(order.total_amount * 100)
 
     # Create a payment session on Paystack
     headers = {
@@ -1904,7 +1870,7 @@ def initiate_paystack_payment():
     }
     data = {
         "email": user.email,
-        "amount": int(total_amount),
+        "amount": total_amount,
         "callback_url": PAYSTACK_CALLBACK_URL,
     }
 
@@ -1917,6 +1883,7 @@ def initiate_paystack_payment():
 
             # Save payment reference for verification later
             session["paystack_reference"] = result["data"]["reference"]
+            session["order_id"] = order_id  # Save order ID in session
             return redirect(authorization_url)
 
         flash("Unable to initiate payment. Please try again.", "danger")
@@ -1926,7 +1893,9 @@ def initiate_paystack_payment():
         return redirect(url_for('checkout'))
 
 
+
 @app.route('/payment/verify', methods=['GET'])
+@login_required
 def verify_paystack_payment():
     """Route to verify Paystack payment"""
     reference = request.args.get("reference")
@@ -1944,35 +1913,17 @@ def verify_paystack_payment():
             # Payment was successful
             flash("Payment was successful!", "success")
 
-            # Create an order in the database
-            user_id = session.get('user_id')
-            user = User.query.get_or_404(user_id)
-            cart = user.cart
-
-            # Save order details
-            new_order = Order(
-                user_id=user_id,
-                total_amount=result["data"]["amount"] / 100,
-                payment_status="paid",
-                reference=reference,
-            )
-            db.session.add(new_order)
-
-            # Save order items
-            for item in cart.cart_items:
-                order_item = OrderItem(
-                    order_id=new_order.order_id,
-                    product_id=item.product_id,
-                    quantity=item.quantity,
-                    price=item.product.price,
-                )
-                db.session.add(order_item)
-
-            # Clear the cart
-            cart.cart_items = []
+            # Update order status to 'Paid'
+            order_id = session.get('order_id')
+            order = Order.query.get_or_404(order_id)
+            order.order_status = 'Paid'
             db.session.commit()
 
-            return redirect(url_for('order_confirmation', order_id=new_order.order_id))
+            # Clear session data
+            session.pop('paystack_reference', None)
+            session.pop('order_id', None)
+
+            return redirect(url_for('order_confirmation', order_id=order_id))
         else:
             flash("Payment verification failed. Please try again.", "danger")
             return redirect(url_for('checkout'))
@@ -1981,14 +1932,23 @@ def verify_paystack_payment():
         return redirect(url_for('checkout'))
 
 
-@app.route('/checkout/submit', methods=['POST'])
+
+
+@app.route('/submit_checkout', methods=['POST'])
 @login_required
 def submit_checkout():
+    # Get the payment method from the form
     payment_method = request.form.get('payment_method')
+
+    if not payment_method:
+        flash('Payment method not found. Please select a payment method.', 'danger')
+        return redirect(url_for('checkout'))
+
+    # Redirect to the appropriate payment gateway
     if payment_method == 'Paystack':
         return redirect(url_for('initiate_paystack_payment'))
     elif payment_method == 'Stripe':
-        return redirect(url_for('initiate_stripe_payment'))
+        return redirect(url_for('create_checkout_session'))
     else:
         flash('Unsupported payment method selected.', 'danger')
         return redirect(url_for('checkout'))
