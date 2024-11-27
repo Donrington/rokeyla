@@ -15,4 +15,4 @@
     ).filter(Order.created_at >= six_months_ago).group_by(func.to_char(Order.created_at, 'YYYY-MM')).order_by(func.to_char(Order.created_at, 'YYYY-MM')).all()
 
 alembic version no
-# c24d797285b
+# c24d797285bI
